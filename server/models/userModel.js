@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
+// Define the user schema
 const userSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -11,10 +12,13 @@ const userSchema = new Schema(
     isAdmin: { type: Boolean, default: false },
     tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
     isActive: { type: Boolean, default: true },
+    points: { type: Number, default: 0 }, // Add points field
+    achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }] // Add achievements field
   },
   { timestamps: true }
 );
 
+// Hash the password before saving the user
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
@@ -24,6 +28,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+// Method to match entered password with the hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

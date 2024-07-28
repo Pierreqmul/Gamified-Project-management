@@ -2,13 +2,26 @@ import asyncHandler from "express-async-handler";
 import Notice from "../models/notis.js";
 import Task from "../models/taskModel.js";
 import User from "../models/userModel.js";
+import Achievement from "../models/Achievement.js"; // Ensure this is the correct path
+
+const checkAchievements = async (user) => {
+  const completedTasksCount = await Task.countDocuments({ assignedTo: user._id, status: 'completed' });
+  const achievements = await Achievement.find({ taskThreshold: { $lte: completedTasksCount } });
+
+  achievements.forEach(async (achievement) => {
+    if (!user.achievements.includes(achievement._id)) {
+      user.achievements.push(achievement._id);
+      user.points += achievement.points;
+      await user.save();
+    }
+  });
+};
 
 const createTask = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.user;
     const { title, team, stage, date, priority, assets } = req.body;
 
-    //alert users of the task
     let text = "New task has been assigned to you";
     if (team?.length > 1) {
       text = text + ` and ${team?.length - 1} others.`;
@@ -58,9 +71,8 @@ const duplicateTask = asyncHandler(async (req, res) => {
 
     const task = await Task.findById(id);
 
-    //alert users of the task
     let text = "New task has been assigned to you";
-    if (team.team?.length > 1) {
+    if (task.team?.length > 1) {
       text = text + ` and ${task.team?.length - 1} others.`;
     }
 
@@ -79,16 +91,11 @@ const duplicateTask = asyncHandler(async (req, res) => {
     };
 
     const newTask = await Task.create({
-      ...task,
+      ...task._doc,
       title: "Duplicate - " + task.title,
     });
 
-    newTask.team = task.team;
-    newTask.subTasks = task.subTasks;
-    newTask.assets = task.assets;
-    newTask.priority = task.priority;
-    newTask.stage = task.stage;
-    newTask.activities = activity;
+    newTask.activities = [activity];
 
     await newTask.save();
 
@@ -124,7 +131,7 @@ const updateTask = asyncHandler(async (req, res) => {
 
     res
       .status(200)
-      .json({ status: true, message: "Task duplicated successfully." });
+      .json({ status: true, message: "Task updated successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -317,7 +324,6 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
   try {
     const { userId, isAdmin } = req.user;
 
-    // Fetch all tasks from the database
     const allTasks = isAdmin
       ? await Task.find({
           isTrashed: false,
@@ -342,7 +348,6 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
       .limit(10)
       .sort({ _id: -1 });
 
-    // Group tasks by stage and calculate counts
     const groupedTasks = allTasks?.reduce((result, task) => {
       const stage = task.stage;
 
@@ -363,11 +368,9 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
       }, {})
     ).map(([name, total]) => ({ name, total }));
 
-    // Calculate total tasks
     const totalTasks = allTasks.length;
     const last10Task = allTasks?.slice(0, 10);
 
-    // Combine results into a summary object
     const summary = {
       totalTasks,
       last10Task,
@@ -385,6 +388,32 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
   }
 });
 
+const completeTask = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const task = await Task.findById(id).populate('assignedTo');
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    task.status = 'completed';
+    task.completedDate = new Date();
+    await task.save();
+
+    if (task.completedDate <= task.deadline) {
+      task.assignedTo.points += 10; // Example points for early completion
+      await task.assignedTo.save();
+    }
+
+    await checkAchievements(task.assignedTo);
+
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 export {
   createSubTask,
   createTask,
@@ -397,4 +426,5 @@ export {
   trashTask,
   updateTask,
   updateTaskStage,
+  completeTask, // Export the new complete task function
 };

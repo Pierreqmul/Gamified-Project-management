@@ -43,6 +43,10 @@ const taskSchema = new Schema(
     assets: [String],
     team: [{ type: Schema.Types.ObjectId, ref: "User" }],
     isTrashed: { type: Boolean, default: false },
+    assignedTo: { type: Schema.Types.ObjectId, ref: "User" }, // User to whom the task is assigned
+    completedDate: { type: Date }, // Date when the task is completed
+    deadline: { type: Date }, // Deadline date for the task
+    status: { type: String, enum: ['pending', 'completed'], default: 'pending' }, // Status of the task
   },
   { timestamps: true }
 );

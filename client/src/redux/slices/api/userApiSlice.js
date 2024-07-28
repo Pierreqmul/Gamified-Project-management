@@ -62,6 +62,22 @@ export const userApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+
+    getUserDetails: builder.query({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
+
+    getLeaderboard: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/leaderboard`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -73,4 +89,6 @@ export const {
   useChangePasswordMutation,
   useGetNotificationsQuery,
   useMarkNotiAsReadMutation,
+  useGetUserDetailsQuery, // Export the new query
+  useGetLeaderboardQuery, // Export the new query
 } = userApiSlice;

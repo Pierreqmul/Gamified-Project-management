@@ -12,6 +12,7 @@ import {
 } from "react-icons/md";
 import { Chart, Loading, UserInfo } from "../components";
 import { useGetDasboardStatsQuery } from "../redux/slices/api/taskApiSlice";
+import { useGetUserDetailsQuery, useGetLeaderboardQuery } from "../redux/slices/api/userApiSlice";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import { useSelector } from "react-redux";
 
@@ -38,6 +39,8 @@ const Card = ({ label, count, bg, icon }) => {
 const Dashboard = () => {
   const { data, isLoading, error } = useGetDasboardStatsQuery();
   const { user } = useSelector((state) => state.auth);
+  const { data: userDetails, isLoading: userLoading } = useGetUserDetailsQuery(user?._id); // Fetch user details
+  const { data: leaderboardData, isLoading: leaderboardLoading } = useGetLeaderboardQuery(); // Fetch leaderboard data
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -45,7 +48,7 @@ const Dashboard = () => {
 
   const totals = data?.tasks || [];
 
-  if (isLoading)
+  if (isLoading || userLoading || leaderboardLoading)
     return (
       <div className='py-10'>
         <Loading />
@@ -62,14 +65,14 @@ const Dashboard = () => {
     },
     {
       _id: "2",
-      label: "COMPLTED TASK",
+      label: "COMPLETED TASK",
       total: totals["completed"] || 0,
       icon: <MdAdminPanelSettings />,
       bg: "bg-[#0f766e]",
     },
     {
       _id: "3",
-      label: "TASK IN PROGRESS ",
+      label: "TASK IN PROGRESS",
       total: totals["in progress"] || 0,
       icon: <LuClipboardEdit />,
       bg: "bg-[#f59e0b]",
@@ -77,9 +80,9 @@ const Dashboard = () => {
     {
       _id: "4",
       label: "TODOS",
-      total: totals["todo"],
+      total: totals["todo"] || 0,
       icon: <FaArrowsToDot />,
-      bg: "bg-[#be185d]" || 0,
+      bg: "bg-[#be185d]",
     },
   ];
 
@@ -98,13 +101,65 @@ const Dashboard = () => {
           </h4>
           <Chart data={data?.graphData} />
         </div>
+
         <div className='w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8'>
           {/* RECENT AUTHORS */}
           {data && <TaskTable tasks={data?.last10Task} />}
           {/* RECENT USERS */}
           {data && user?.isAdmin && <UserTable users={data?.users} />}
         </div>
+
+        <div className='w-full bg-white my-16 p-4 rounded shadow-sm'>
+          <h4 className='text-xl text-gray-500 font-bold mb-2'>
+            Your Points and Achievements
+          </h4>
+          <div className='flex flex-col gap-4'>
+            <div className='text-2xl'>
+              Points: {userDetails?.points}
+            </div>
+            <div>
+              <h5 className='text-xl'>Achievements:</h5>
+              <ul>
+                {userDetails?.achievements.map(achievement => (
+                  <li key={achievement._id}>{achievement.name}: {achievement.description}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className='w-full bg-white my-16 p-4 rounded shadow-sm'>
+          <h4 className='text-xl text-gray-500 font-bold mb-2'>
+            Leaderboard
+          </h4>
+          <Leaderboard users={leaderboardData} />
+        </div>
       </>
+    </div>
+  );
+};
+
+const Leaderboard = ({ users }) => {
+  return (
+    <div className='w-full bg-white h-fit px-2 md:px-6 py-4 shadow-md rounded'>
+      <table className='w-full mb-5'>
+        <thead className='border-b border-gray-300 dark:border-gray-600'>
+          <tr className='text-black dark:text-white text-left'>
+            <th className='py-2'>Rank</th>
+            <th className='py-2'>Full Name</th>
+            <th className='py-2'>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users?.map((user, index) => (
+            <tr key={index} className='border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-400/10'>
+              <td className='py-2'>{index + 1}</td>
+              <td className='py-2'>{user.name}</td>
+              <td className='py-2'>{user.points}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
@@ -112,7 +167,7 @@ const Dashboard = () => {
 const UserTable = ({ users }) => {
   const TableHeader = () => (
     <thead className='border-b border-gray-300 dark:border-gray-600'>
-      <tr className='text-black dark:text-white  text-left'>
+      <tr className='text-black dark:text-white text-left'>
         <th className='py-2'>Full Name</th>
         <th className='py-2'>Status</th>
         <th className='py-2'>Created At</th>
@@ -128,7 +183,7 @@ const UserTable = ({ users }) => {
             <span className='text-center'>{getInitials(user?.name)}</span>
           </div>
           <div>
-            <p> {user.name}</p>
+            <p>{user.name}</p>
             <span className='text-xs text-black'>{user?.role}</span>
           </div>
         </div>
@@ -173,7 +228,7 @@ const TaskTable = ({ tasks }) => {
 
   const TableHeader = () => (
     <thead className='border-b border-gray-300 dark:border-gray-600'>
-      <tr className='text-black dark:text-white  text-left'>
+      <tr className='text-black dark:text-white text-left'>
         <th className='py-2'>Task Title</th>
         <th className='py-2'>Priority</th>
         <th className='py-2'>Team</th>
@@ -186,9 +241,7 @@ const TaskTable = ({ tasks }) => {
     <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
       <td className='py-2'>
         <div className='flex items-center gap-2'>
-          <div
-            className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])}
-          />
+          <div className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])} />
           <p className='text-base text-black dark:text-gray-400'>
             {task?.title}
           </p>
