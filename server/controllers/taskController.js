@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import Notice from "../models/notis.js";
 import Task from "../models/taskModel.js";
 import User from "../models/userModel.js";
-import Achievement from "../models/Achievement.js"; // Ensure this is the correct path
+import Achievement from "../models/Achievement.js";
 
 const checkAchievements = async (user) => {
   const completedTasksCount = await Task.countDocuments({ assignedTo: user._id, status: 'completed' });
@@ -16,6 +16,32 @@ const checkAchievements = async (user) => {
     }
   });
 };
+
+const completeTask = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const task = await Task.findById(id).populate('assignedTo');
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    task.status = 'completed';
+    task.completedDate = new Date();
+    await task.save();
+
+    if (task.completedDate <= task.deadline) {
+      task.assignedTo.points += 10; // Example points for early completion
+      await task.assignedTo.save();
+    }
+
+    await checkAchievements(task.assignedTo);
+
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 const createTask = asyncHandler(async (req, res) => {
   try {
@@ -385,32 +411,6 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
-  }
-});
-
-const completeTask = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const task = await Task.findById(id).populate('assignedTo');
-
-    if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
-    }
-
-    task.status = 'completed';
-    task.completedDate = new Date();
-    await task.save();
-
-    if (task.completedDate <= task.deadline) {
-      task.assignedTo.points += 10; // Example points for early completion
-      await task.assignedTo.save();
-    }
-
-    await checkAchievements(task.assignedTo);
-
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

@@ -39,12 +39,18 @@ const Card = ({ label, count, bg, icon }) => {
 const Dashboard = () => {
   const { data, isLoading, error } = useGetDasboardStatsQuery();
   const { user } = useSelector((state) => state.auth);
-  const { data: userDetails, isLoading: userLoading } = useGetUserDetailsQuery(user?._id); // Fetch user details
-  const { data: leaderboardData, isLoading: leaderboardLoading } = useGetLeaderboardQuery(); // Fetch leaderboard data
+  const { data: userDetails, isLoading: userLoading } = useGetUserDetailsQuery(user?._id);
+  const { data: leaderboardData, isLoading: leaderboardLoading } = useGetLeaderboardQuery();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }, []);
+
+  // Debugging: Log userDetails and leaderboardData
+  useEffect(() => {
+    console.log('User Details:', userDetails);
+    console.log('Leaderboard Data:', leaderboardData);
+  }, [userDetails, leaderboardData]);
 
   const totals = data?.tasks || [];
 
@@ -103,9 +109,7 @@ const Dashboard = () => {
         </div>
 
         <div className='w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8'>
-          {/* RECENT AUTHORS */}
           {data && <TaskTable tasks={data?.last10Task} />}
-          {/* RECENT USERS */}
           {data && user?.isAdmin && <UserTable users={data?.users} />}
         </div>
 

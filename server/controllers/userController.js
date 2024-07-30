@@ -80,21 +80,26 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// @GET -   Get user profile
-// const getUserProfile = asyncHandler(async (req, res) => {
-//   const { userId } = req.user;
-
-//   const user = await User.findById(userId);
-
-//   user.password = undefined;
-
-//   if (user) {
-//     res.json({ ...user });
-//   } else {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
-// });
+// GET - Get user details including points and achievements
+const getUserDetails = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate('achievements');
+    if (user) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        points: user.points,
+        achievements: user.achievements,
+      });
+    } else {
+      res.status(404);
+      throw new Error('User not found');
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 const getTeamList = asyncHandler(async (req, res) => {
   const { search } = req.query;
@@ -117,7 +122,7 @@ const getTeamList = asyncHandler(async (req, res) => {
   res.status(201).json(user);
 });
 
-// @GET  - get user notifications
+// GET - Get user notifications
 const getNotificationsList = asyncHandler(async (req, res) => {
   const { userId } = req.user;
 
@@ -131,7 +136,7 @@ const getNotificationsList = asyncHandler(async (req, res) => {
   res.status(201).json(notice);
 });
 
-// @GET  - get user notifications
+// PUT - Mark notifications as read
 const markNotificationRead = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.user;
@@ -190,7 +195,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// PUT - active/disactivate user profile
+// PUT - Activate/deactivate user profile
 const activateUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -214,6 +219,7 @@ const activateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// PUT - Change user password
 const changeUserPassword = asyncHandler(async (req, res) => {
   const { userId } = req.user;
 
@@ -221,7 +227,7 @@ const changeUserPassword = asyncHandler(async (req, res) => {
   if (userId === "65ff94c7bb2de638d0c73f63") {
     return res.status(404).json({
       status: false,
-      message: "This is a test user. You can not chnage password. Thank you!!!",
+      message: "This is a test user. You can not change password. Thank you!!!",
     });
   }
 
@@ -236,14 +242,14 @@ const changeUserPassword = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       status: true,
-      message: `Password chnaged successfully.`,
+      message: `Password changed successfully.`,
     });
   } else {
     res.status(404).json({ status: false, message: "User not found" });
   }
 });
 
-// DELETE - delete user account
+// DELETE - Delete user account
 const deleteUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -263,4 +269,5 @@ export {
   updateUserProfile,
   getNotificationsList,
   markNotificationRead,
+  getUserDetails, // Export the new function
 };
