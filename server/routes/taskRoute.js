@@ -11,6 +11,7 @@ import {
   trashTask,
   updateTask,
   updateTaskStage,
+  completeTask // New import for completing tasks
 } from "../controllers/taskController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -27,6 +28,7 @@ router.get("/:id", protectRoute, getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/change-stage/:id", protectRoute, updateTaskStage);
+router.put("/complete/:id", protectRoute, completeTask); // New route for completing tasks
 router.put("/:id", protectRoute, isAdminRoute, trashTask);
 
 router.delete(

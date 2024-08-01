@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import moment from "moment";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaNewspaper } from "react-icons/fa";
 import { FaArrowsToDot } from "react-icons/fa6";
 import { LuClipboardEdit } from "react-icons/lu";
@@ -11,10 +11,11 @@ import {
   MdKeyboardDoubleArrowUp,
 } from "react-icons/md";
 import { Chart, Loading, UserInfo } from "../components";
-import { useGetDasboardStatsQuery } from "../redux/slices/api/taskApiSlice";
+import { useGetDashboardStatsQuery } from "../redux/slices/api/taskApiSlice.js";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import { useSelector } from "react-redux";
-
+import axios from "axios";
+import LeaderDashboard from "./LeaderDashboard.jsx"; 
 const Card = ({ label, count, bg, icon }) => {
   return (
     <div className='w-full h-32 bg-white p-5 shadow-md rounded-md flex items-center justify-between'>
@@ -36,12 +37,23 @@ const Card = ({ label, count, bg, icon }) => {
 };
 
 const Dashboard = () => {
-  const { data, isLoading, error } = useGetDasboardStatsQuery();
+  const { data, isLoading } = useGetDashboardStatsQuery();
   const { user } = useSelector((state) => state.auth);
+  const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  }, []);
+    const fetchAchievements = async () => {
+      try {
+        const response = await axios.get(`/api/achievements`);
+        setAchievements(response.data);
+      } catch (error) {
+        console.error("Error fetching achievements", error);
+      }
+    };
+
+    fetchAchievements();
+  }, [user._id]);
 
   const totals = data?.tasks || [];
 
@@ -62,7 +74,7 @@ const Dashboard = () => {
     },
     {
       _id: "2",
-      label: "COMPLTED TASK",
+      label: "COMPLETED TASK",
       total: totals["completed"] || 0,
       icon: <MdAdminPanelSettings />,
       bg: "bg-[#0f766e]",
@@ -104,6 +116,24 @@ const Dashboard = () => {
           {/* RECENT USERS */}
           {data && user?.isAdmin && <UserTable users={data?.users} />}
         </div>
+
+        <div className='w-full bg-white p-4 rounded shadow-sm mt-8'>
+          <h4 className='text-xl text-gray-500 font-bold mb-2'>User Points</h4>
+          <div className='text-2xl font-semibold'>{user.points}</div>
+        </div>
+        <div className='w-full bg-white p-4 rounded shadow-sm mt-8'>
+          <h4 className='text-xl text-gray-500 font-bold mb-2'>Achievements</h4>
+          <ul className='list-disc list-inside'>
+            {achievements.map((achievement) => (
+              <li key={achievement._id} className='text-gray-700'>
+                {achievement.name}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Leaderboard */}
+        <LeaderDashboard />
       </>
     </div>
   );
@@ -186,12 +216,8 @@ const TaskTable = ({ tasks }) => {
     <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
       <td className='py-2'>
         <div className='flex items-center gap-2'>
-          <div
-            className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])}
-          />
-          <p className='text-base text-black dark:text-gray-400'>
-            {task?.title}
-          </p>
+          <div className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])} />
+          <p className='text-base text-black dark:text-gray-400'>{task?.title}</p>
         </div>
       </td>
       <td className='py-2'>

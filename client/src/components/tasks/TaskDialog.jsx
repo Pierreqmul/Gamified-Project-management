@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
   useChangeTaskStageMutation,
   useDuplicateTaskMutation,
-  useTrashTastMutation,
+  useTrashTaskMutation,
 } from "../../redux/slices/api/taskApiSlice";
 import ConfirmatioDialog from "../ConfirmationDialog";
 import AddSubTask from "./AddSubTask";
@@ -125,7 +125,7 @@ export default function TaskDialog({ task }) {
 
   const navigate = useNavigate();
 
-  const [deleteTask] = useTrashTastMutation();
+  const [deleteTask] = useTrashTaskMutation();
   const [duplicateTask] = useDuplicateTaskMutation();
 
   const deleteClicks = () => {

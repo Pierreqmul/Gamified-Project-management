@@ -11,6 +11,8 @@ const userSchema = new Schema(
     isAdmin: { type: Boolean, default: false },
     tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
     isActive: { type: Boolean, default: true },
+    points: { type: Number, default: 0 },  // New field for points
+    achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }]  // New field for achievements
   },
   { timestamps: true }
 );

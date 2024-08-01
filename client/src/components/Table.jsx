@@ -6,7 +6,7 @@ import {
   MdKeyboardDoubleArrowUp,
 } from "react-icons/md";
 import { toast } from "sonner";
-import { useTrashTastMutation } from "../redux/slices/api/taskApiSlice.js";
+import { useTrashTaskMutation } from "../redux/slices/api/taskApiSlice.js";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../utils/index.js";
 // import Button from "./Button.jsx";
 // import ConfirmatioDialog from "./ConfirmationDialog.jsx";
@@ -27,7 +27,7 @@ const Table = ({ tasks }) => {
   const [selected, setSelected] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
 
-  const [deleteTask] = useTrashTastMutation();
+  const [deleteTask] = useTrashTaskMutation();
 
   const deleteClicks = (id) => {
     setSelected(id);

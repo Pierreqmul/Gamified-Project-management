@@ -17,7 +17,7 @@ import {
 } from "../components";
 import { TaskColor } from "../components/tasks";
 import {
-  useDeleteRestoreTastMutation,
+  useDeleteRestoreTaskMutation,
   useGetAllTaskQuery,
 } from "../redux/slices/api/taskApiSlice";
 import { PRIOTITYSTYELS, TASK_TYPE } from "../utils/index";
@@ -43,7 +43,7 @@ const Trash = () => {
     isTrashed: "true",
     search: searchTerm,
   });
-  const [deleteRestoreTask] = useDeleteRestoreTastMutation();
+  const [deleteRestoreTask] = useDeleteRestoreTaskMutation();
 
   const deleteAllClick = () => {
     setType("deleteAll");

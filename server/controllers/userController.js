@@ -80,22 +80,6 @@ const logoutUser = (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
-// @GET -   Get user profile
-// const getUserProfile = asyncHandler(async (req, res) => {
-//   const { userId } = req.user;
-
-//   const user = await User.findById(userId);
-
-//   user.password = undefined;
-
-//   if (user) {
-//     res.json({ ...user });
-//   } else {
-//     res.status(404);
-//     throw new Error("User not found");
-//   }
-// });
-
 const getTeamList = asyncHandler(async (req, res) => {
   const { search } = req.query;
   let query = {};
@@ -217,14 +201,6 @@ const activateUserProfile = asyncHandler(async (req, res) => {
 const changeUserPassword = asyncHandler(async (req, res) => {
   const { userId } = req.user;
 
-  // Remove this condition
-  if (userId === "65ff94c7bb2de638d0c73f63") {
-    return res.status(404).json({
-      status: false,
-      message: "This is a test user. You can not chnage password. Thank you!!!",
-    });
-  }
-
   const user = await User.findById(userId);
 
   if (user) {
@@ -236,7 +212,7 @@ const changeUserPassword = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       status: true,
-      message: `Password chnaged successfully.`,
+      message: `Password changed successfully.`,
     });
   } else {
     res.status(404).json({ status: false, message: "User not found" });
@@ -252,6 +228,20 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ status: true, message: "User deleted successfully" });
 });
 
+// @GET - Get user achievements
+const getUserAchievements = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate("achievements");
+    if (user) {
+      res.status(200).json(user.achievements);
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
 export {
   activateUserProfile,
   changeUserPassword,
@@ -263,4 +253,5 @@ export {
   updateUserProfile,
   getNotificationsList,
   markNotificationRead,
+  getUserAchievements // New export for getting user achievements
 };

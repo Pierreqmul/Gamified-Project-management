@@ -5,7 +5,7 @@ import { MdGridView } from "react-icons/md";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Button, Loading, Table, Tabs, Title } from "../components";
 import { AddTask, BoardView, TaskTitle } from "../components/tasks";
-import { useGetAllTaskQuery } from "../redux/slices/api/taskApiSlice";
+import { useGetAllTaskQuery, useUpdateTaskMutation } from "../redux/slices/api/taskApiSlice"; // Updated import
 import { TASK_TYPE } from "../utils";
 import { useSelector } from "react-redux";
 
@@ -25,22 +25,40 @@ const Tasks = () => {
 
   const status = params?.status || "";
 
+  // Fetch tasks data
   const { data, isLoading, refetch } = useGetAllTaskQuery({
     strQuery: status,
     isTrashed: "",
     search: searchTerm,
   });
 
-  useEffect(() => {
-    refetch();
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-  }, []);
+  // Mutation hook for updating task stage
+  const [updateTaskStage] = useUpdateTaskMutation();
 
-  return isLoading ? (
-    <div className='py-10'>
-      <Loading />
-    </div>
-  ) : (
+  // Handle stage change for a task
+  const handleStageChange = async (taskId, newStage) => {
+    try {
+      await updateTaskStage({ id: taskId, stage: newStage }).unwrap();
+      refetch(); // Refetch data to reflect changes
+    } catch (error) {
+      console.error("Failed to update task stage", error);
+    }
+  };
+
+  useEffect(() => {
+    refetch(); // Initial fetch to get tasks
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, [refetch]);
+
+  if (isLoading) {
+    return (
+      <div className='py-10'>
+        <Loading />
+      </div>
+    );
+  }
+
+  return (
     <div className='w-full'>
       <div className='flex items-center justify-between mb-4'>
         <Title title={status ? `${status} Tasks` : "Tasks"} />
@@ -69,9 +87,9 @@ const Tasks = () => {
           )}
 
           {selected === 0 ? (
-            <BoardView tasks={data?.tasks} />
+            <BoardView tasks={data?.tasks} onStageChange={handleStageChange} />
           ) : (
-            <Table tasks={data?.tasks} />
+            <Table tasks={data?.tasks} onStageChange={handleStageChange} />
           )}
         </Tabs>
       </div>

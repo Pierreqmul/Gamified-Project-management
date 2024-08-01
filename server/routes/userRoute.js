@@ -10,6 +10,7 @@ import {
   markNotificationRead,
   registerUser,
   updateUserProfile,
+  getUserAchievements // New import for getting user achievements
 } from "../controllers/userController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -21,6 +22,7 @@ router.post("/logout", logoutUser);
 
 router.get("/get-team", protectRoute, isAdminRoute, getTeamList);
 router.get("/notifications", protectRoute, getNotificationsList);
+router.get("/:id/achievements", protectRoute, getUserAchievements); // New route for getting user achievements
 
 router.put("/profile", protectRoute, updateUserProfile);
 router.put("/read-noti", protectRoute, markNotificationRead);
