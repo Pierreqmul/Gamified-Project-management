@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import createJWT from "../utils/index.js";
 import Notice from "../models/notis.js";
+import Task from "../models/taskModel.js"; // New import for Task model
 
 // POST request - login user
 const loginUser = asyncHandler(async (req, res) => {
@@ -242,6 +243,34 @@ const getUserAchievements = asyncHandler(async (req, res) => {
   }
 });
 
+// New controller function for completing a task
+const completeTask = asyncHandler(async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { userId } = req.body;
+
+    // Fetch the task and mark it as completed
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+    task.status = 'completed';
+    await task.save();
+
+    // Add 20 points to the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    user.points += 20;
+    await user.save();
+
+    res.status(200).json({ message: 'Task completed and points added', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
+
 export {
   activateUserProfile,
   changeUserPassword,
@@ -253,5 +282,6 @@ export {
   updateUserProfile,
   getNotificationsList,
   markNotificationRead,
-  getUserAchievements // New export for getting user achievements
+  getUserAchievements,
+  completeTask // Include the new export
 };

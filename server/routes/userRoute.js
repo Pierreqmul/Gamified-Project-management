@@ -10,7 +10,8 @@ import {
   markNotificationRead,
   registerUser,
   updateUserProfile,
-  getUserAchievements // New import for getting user achievements
+  getUserAchievements, // New import for getting user achievements
+  completeTask // New import for completing task
 } from "../controllers/userController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -27,7 +28,11 @@ router.get("/:id/achievements", protectRoute, getUserAchievements); // New route
 router.put("/profile", protectRoute, updateUserProfile);
 router.put("/read-noti", protectRoute, markNotificationRead);
 router.put("/change-password", protectRoute, changeUserPassword);
-//   FOR ADMIN ONLY - ADMIN ROUTES
+
+// New route for completing a task and adding points to the user
+router.put('/tasks/:taskId/complete', protectRoute, completeTask);
+
+// FOR ADMIN ONLY - ADMIN ROUTES
 router
   .route("/:id")
   .put(protectRoute, isAdminRoute, activateUserProfile)

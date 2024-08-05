@@ -1,3 +1,4 @@
+
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment, useState } from "react";
@@ -35,13 +36,15 @@ const CustomTransition = ({ children }) => (
 );
 
 const ChangeTaskActions = ({ _id, stage }) => {
+  const { user } = useSelector((state) => state.auth);
   const [changeStage] = useChangeTaskStageMutation();
 
-  const changeHanlder = async (val) => {
+  const changeHandler = async (val) => {
     try {
       const data = {
         id: _id,
         stage: val,
+        userId: user._id,  // include the logged-in user's ID
       };
       const res = await changeStage(data).unwrap();
 
@@ -61,59 +64,57 @@ const ChangeTaskActions = ({ _id, stage }) => {
       label: "To-Do",
       stage: "todo",
       icon: <TaskColor className='bg-blue-600' />,
-      onClick: () => changeHanlder("todo"),
+      onClick: () => changeHandler("todo"),
     },
     {
       label: "In Progress",
       stage: "in progress",
       icon: <TaskColor className='bg-yellow-600' />,
-      onClick: () => changeHanlder("in progress"),
+      onClick: () => changeHandler("in progress"),
     },
     {
       label: "Completed",
       stage: "completed",
       icon: <TaskColor className='bg-green-600' />,
-      onClick: () => changeHanlder("completed"),
+      onClick: () => changeHandler("completed"),
     },
   ];
 
   return (
-    <>
-      <Menu as='div' className='relative inline-block text-left'>
-        <Menu.Button
-          className={clsx(
-            "inline-flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300"
-          )}
-        >
-          <FaExchangeAlt />
-          <span>Change Task</span>
-        </Menu.Button>
+    <Menu as='div' className='relative inline-block text-left'>
+      <Menu.Button
+        className={clsx(
+          "inline-flex w-full items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300"
+        )}
+      >
+        <FaExchangeAlt />
+        <span>Change Task</span>
+      </Menu.Button>
 
-        <CustomTransition>
-          <Menu.Items className='absolute p-4 left-0 mt-2 w-40 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none'>
-            <div className='px-1 py-1 space-y-2'>
-              {items.map((el) => (
-                <Menu.Item key={el.label} disabled={stage === el.stage}>
-                  {({ active }) => (
-                    <button
-                      disabled={stage === el.stage}
-                      onClick={el?.onClick}
-                      className={clsx(
-                        active ? "bg-gray-200 text-gray-900" : "text-gray-900",
-                        "group flex gap-2 w-full items-center rounded-md px-2 py-2 text-sm disabled:opacity-50"
-                      )}
-                    >
-                      {el.icon}
-                      {el.label}
-                    </button>
-                  )}
-                </Menu.Item>
-              ))}
-            </div>
-          </Menu.Items>
-        </CustomTransition>
-      </Menu>
-    </>
+      <CustomTransition>
+        <Menu.Items className='absolute p-4 left-0 mt-2 w-40 divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none'>
+          <div className='px-1 py-1 space-y-2'>
+            {items.map((el) => (
+              <Menu.Item key={el.label} disabled={stage === el.stage}>
+                {({ active }) => (
+                  <button
+                    disabled={stage === el.stage}
+                    onClick={el?.onClick}
+                    className={clsx(
+                      active ? "bg-gray-200 text-gray-900" : "text-gray-900",
+                      "group flex gap-2 w-full items-center rounded-md px-2 py-2 text-sm disabled:opacity-50"
+                    )}
+                  >
+                    {el.icon}
+                    {el.label}
+                  </button>
+                )}
+              </Menu.Item>
+            ))}
+          </div>
+        </Menu.Items>
+      </CustomTransition>
+    </Menu>
   );
 };
 
@@ -151,7 +152,7 @@ export default function TaskDialog({ task }) {
     }
   };
 
-  const duplicateHanlder = async () => {
+  const duplicateHandler = async () => {
     try {
       const res = await duplicateTask(task._id).unwrap();
 
@@ -186,7 +187,7 @@ export default function TaskDialog({ task }) {
     {
       label: "Duplicate",
       icon: <HiDuplicate className='mr-2 h-5 w-5' aria-hidden='true' />,
-      onClick: () => duplicateHanlder(),
+      onClick: () => duplicateHandler(),
     },
   ];
 
@@ -221,7 +222,7 @@ export default function TaskDialog({ task }) {
 
               <div className='px-1 py-1'>
                 <Menu.Item>
-                  <ChangeTaskActions id={task._id} {...task} />
+                  <ChangeTaskActions _id={task._id} {...task} />
                 </Menu.Item>
               </div>
 

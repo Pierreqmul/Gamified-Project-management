@@ -1,7 +1,7 @@
 import { TASKS_URL } from "../../../utils/contants";
 import { apiSlice } from "../apiSlice";
 
-export const postApiSlice = apiSlice.injectEndpoints({
+export const taskApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     createTask: builder.mutation({
       query: (data) => ({
@@ -96,6 +96,15 @@ export const postApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+
+    completeTask: builder.mutation({
+      query: ({ id, userId }) => ({
+        url: `${TASKS_URL}/${id}/complete`,
+        method: "PUT",
+        body: { userId },
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -111,5 +120,5 @@ export const {
   useDeleteRestoreTaskMutation,
   useGetDashboardStatsQuery,
   useChangeTaskStageMutation,
-  useUpdateTaskStageMutation, 
-} = postApiSlice;
+  useCompleteTaskMutation,
+} = taskApiSlice;

@@ -109,12 +109,20 @@ const updateTask = asyncHandler(async (req, res) => {
 
     await task.save();
 
+    // Check if task stage is "completed"
+    if (task.stage === 'completed') {
+      // Update points for assigned users
+      await User.updateMany(
+        { _id: { $in: task.assignedUsers } },
+        { $inc: { points: 20 } }
+      );
+    }
+
     res.status(200).json({ status: true, message: "Task updated successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
 });
-
 const updateTaskStage = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
@@ -218,7 +226,6 @@ const getTask = asyncHandler(async (req, res) => {
     throw new Error("Failed to fetch task", error);
   }
 });
-
 const postTaskActivity = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
@@ -308,109 +315,107 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
           .sort({ _id: -1 })
       : await Task.find({
           isTrashed: false,
-          team: { $all: [userId
-            , userId] },
+          team: { $all: [userId] },
+        })
+          .populate({
+            path: "team",
+            select: "name role title email",
           })
-            .populate({
-              path: "team",
-              select: "name role title email",
-            })
-            .sort({ _id: -1 });
-  
-      const activeUsers = await User.find({ isActive: true })
-        .select("name title role isActive createdAt")
-        .limit(10)
-        .sort({ _id: -1 });
-  
-      // Group tasks by stage and calculate counts
-      const groupedTasks = allTasks?.reduce((result, task) => {
-        const stage = task.stage;
-  
-        if (!result[stage]) {
-          result[stage] = 1;
-        } else {
-          result[stage] += 1;
-        }
-  
+          .sort({ _id: -1 });
+
+    const activeUsers = await User.find({ isActive: true })
+      .select("name title role isActive createdAt")
+      .limit(10)
+      .sort({ _id: -1 });
+
+    // Group tasks by stage and calculate counts
+    const groupedTasks = allTasks?.reduce((result, task) => {
+      const stage = task.stage;
+
+      if (!result[stage]) {
+        result[stage] = 1;
+      } else {
+        result[stage] += 1;
+      }
+
+      return result;
+    }, {});
+
+    const graphData = Object.entries(
+      allTasks?.reduce((result, task) => {
+        const { priority } = task;
+        result[priority] = (result[priority] || 0) + 1;
         return result;
-      }, {});
-  
-      const graphData = Object.entries(
-        allTasks?.reduce((result, task) => {
-          const { priority } = task;
-          result[priority] = (result[priority] || 0) + 1;
-          return result;
-        }, {})
-      ).map(([name, total]) => ({ name, total }));
-  
-      // Calculate total tasks
-      const totalTasks = allTasks.length;
-      const last10Task = allTasks?.slice(0, 10);
-  
-      // Combine results into a summary object
-      const summary = {
-        totalTasks,
-        last10Task,
-        users: isAdmin ? activeUsers : [],
-        tasks: groupedTasks,
-        graphData,
-      };
-  
-      res.status(200).json({ status: true, ...summary, message: "Successfully." });
-    } catch (error) {
-      console.log(error);
-      return res.status(400).json({ status: false, message: error.message });
-    }
-  });
-  
-  // Complete a task and update user points
-  const completeTask = asyncHandler(async (req, res) => {
-    try {
-      const task = await Task.findById(req.params.id);
-      if (task) {
-        task.status = "completed";
-        await task.save();
-  
-        const user = await User.findById(req.body.userId);
-        user.points += task.points;
-        await user.save();
-  
-        // Check for achievements
-        const achievements = await Achievement.find({});
-        for (const achievement of achievements) {
-          const completedTasks = await Task.find({
-            team: user._id,
-            status: "completed",
-          });
-          if (completedTasks.length >= achievement.tasksRequired) {
-            if (!user.achievements.includes(achievement._id)) {
-              user.achievements.push(achievement._id);
-              await user.save();
-            }
+      }, {})
+    ).map(([name, total]) => ({ name, total }));
+
+    // Calculate total tasks
+    const totalTasks = allTasks.length;
+    const last10Task = allTasks?.slice(0, 10);
+
+    // Combine results into a summary object
+    const summary = {
+      totalTasks,
+      last10Task,
+      users: isAdmin ? activeUsers : [],
+      tasks: groupedTasks,
+      graphData,
+    };
+
+    res.status(200).json({ status: true, ...summary, message: "Successfully." });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: false, message: error.message });
+  }
+});
+
+// Complete a task and update user points
+const completeTask = asyncHandler(async (req, res) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (task) {
+      task.status = "completed";
+      await task.save();
+
+      const user = await User.findById(req.body.userId);
+      user.points += task.points;
+      await user.save();
+
+      // Check for achievements
+      const achievements = await Achievement.find({});
+      for (const achievement of achievements) {
+        const completedTasks = await Task.find({
+          team: user._id,
+          status: "completed",
+        });
+        if (completedTasks.length >= achievement.tasksRequired) {
+          if (!user.achievements.includes(achievement._id)) {
+            user.achievements.push(achievement._id);
+            await user.save();
           }
         }
-  
-        res.status(200).json({ message: "Task completed and points updated", user });
-      } else {
-        res.status(404).json({ message: "Task not found" });
       }
-    } catch (error) {
-      res.status(500).json({ message: "Server error", error });
+
+      res.status(200).json({ message: "Task completed and points updated", user });
+    } else {
+      res.status(404).json({ message: "Task not found" });
     }
-  });
-  
-  export {
-    createSubTask,
-    createTask,
-    dashboardStatistics,
-    deleteRestoreTask,
-    duplicateTask,
-    getTask,
-    getTasks,
-    postTaskActivity,
-    trashTask,
-    updateTask,
-    updateTaskStage,
-    completeTask // New export for completing tasks
-  };
-  
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+export {
+  createSubTask,
+  createTask,
+  dashboardStatistics,
+  deleteRestoreTask,
+  duplicateTask,
+  getTask,
+  getTasks,
+  postTaskActivity,
+  trashTask,
+  updateTask,
+  updateTaskStage,
+  completeTask // New export for completing tasks
+};
