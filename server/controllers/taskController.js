@@ -2,20 +2,23 @@ import asyncHandler from "express-async-handler";
 import Notice from "../models/notis.js";
 import Task from "../models/taskModel.js";
 import User from "../models/userModel.js";
-import Achievement from "../models/achievementModel.js";
 
 const createTask = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.user;
     const { title, team, stage, date, priority, assets } = req.body;
 
-    // Alert users of the task
+    //alert users of the task
     let text = "New task has been assigned to you";
     if (team?.length > 1) {
       text = text + ` and ${team?.length - 1} others.`;
     }
 
-    text += ` The task priority is set a ${priority} priority, so check and act accordingly. The task date is ${new Date(date).toDateString()}. Thank you!!!`;
+    text =
+      text +
+      ` The task priority is set a ${priority} priority, so check and act accordingly. The task date is ${new Date(
+        date
+      ).toDateString()}. Thank you!!!`;
 
     const activity = {
       type: "assigned",
@@ -39,7 +42,9 @@ const createTask = asyncHandler(async (req, res) => {
       task: task._id,
     });
 
-    res.status(200).json({ status: true, task, message: "Task created successfully." });
+    res
+      .status(200)
+      .json({ status: true, task, message: "Task created successfully." });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
@@ -53,13 +58,19 @@ const duplicateTask = asyncHandler(async (req, res) => {
 
     const task = await Task.findById(id);
 
-    // Alert users of the task
+    //alert users of the task
     let text = "New task has been assigned to you";
-    if (task.team?.length > 1) {
+    if (team.team?.length > 1) {
       text = text + ` and ${task.team?.length - 1} others.`;
     }
 
-    text += ` The task priority is set a ${task.priority} priority, so check and act accordingly. The task date is ${new Date(task.date).toDateString()}. Thank you!!!`;
+    text =
+      text +
+      ` The task priority is set a ${
+        task.priority
+      } priority, so check and act accordingly. The task date is ${new Date(
+        task.date
+      ).toDateString()}. Thank you!!!`;
 
     const activity = {
       type: "assigned",
@@ -81,13 +92,23 @@ const duplicateTask = asyncHandler(async (req, res) => {
 
     await newTask.save();
 
+    // Check if the task stage is completed and add points
+    if (newTask.stage === 'completed') {
+      await User.updateMany(
+        { _id: { $in: newTask.team } },
+        { $inc: { points: 20 } }
+      );
+    }
+
     await Notice.create({
       team: newTask.team,
       text,
       task: newTask._id,
     });
 
-    res.status(200).json({ status: true, message: "Task duplicated successfully." });
+    res
+      .status(200)
+      .json({ status: true, message: "Task saved successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -109,32 +130,35 @@ const updateTask = asyncHandler(async (req, res) => {
 
     await task.save();
 
-    // Check if task stage is "completed"
+    // Check if the task stage is completed and add points
     if (task.stage === 'completed') {
-      // Update points for assigned users
       await User.updateMany(
-        { _id: { $in: task.assignedUsers } },
+        { _id: { $in: task.team } },
         { $inc: { points: 20 } }
       );
+
+      const achievements = await Achievement.find({});
+      for (const user of task.team) {
+        const completedTasks = await Task.find({
+          team: user,
+          stage: "completed",
+        }).countDocuments();
+        
+        for (const achievement of achievements) {
+          const userDoc = await User.findById(user);
+          if (completedTasks >= achievement.tasksRequired) {
+            if (!userDoc.achievements.includes(achievement._id)) {
+              userDoc.achievements.push(achievement._id);
+              await userDoc.save();
+            }
+          }
+        }
+      }
     }
 
-    res.status(200).json({ status: true, message: "Task updated successfully." });
-  } catch (error) {
-    return res.status(400).json({ status: false, message: error.message });
-  }
-});
-const updateTaskStage = asyncHandler(async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { stage } = req.body;
-
-    const task = await Task.findById(id);
-
-    task.stage = stage.toLowerCase();
-
-    await task.save();
-
-    res.status(200).json({ status: true, message: "Task stage changed successfully." });
+    res
+      .status(200)
+      .json({ status: true, message: "Task updated successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -157,7 +181,9 @@ const createSubTask = asyncHandler(async (req, res) => {
 
     await task.save();
 
-    res.status(200).json({ status: true, message: "SubTask added successfully." });
+    res
+      .status(200)
+      .json({ status: true, message: "SubTask added successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -226,6 +252,7 @@ const getTask = asyncHandler(async (req, res) => {
     throw new Error("Failed to fetch task", error);
   }
 });
+
 const postTaskActivity = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { userId } = req.user;
@@ -243,7 +270,9 @@ const postTaskActivity = asyncHandler(async (req, res) => {
 
     await task.save();
 
-    res.status(200).json({ status: true, message: "Activity posted successfully." });
+    res
+      .status(200)
+      .json({ status: true, message: "Activity posted successfully." });
   } catch (error) {
     return res.status(400).json({ status: false, message: error.message });
   }
@@ -323,7 +352,7 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
           })
           .sort({ _id: -1 });
 
-    const activeUsers = await User.find({ isActive: true })
+    const users = await User.find({ isActive: true })
       .select("name title role isActive createdAt")
       .limit(10)
       .sort({ _id: -1 });
@@ -357,46 +386,35 @@ const dashboardStatistics = asyncHandler(async (req, res) => {
     const summary = {
       totalTasks,
       last10Task,
-      users: isAdmin ? activeUsers : [],
+      users: isAdmin ? users : [],
       tasks: groupedTasks,
       graphData,
     };
 
-    res.status(200).json({ status: true, ...summary, message: "Successfully." });
+    res
+      .status(200)
+      .json({ status: true, ...summary, message: "Successfully." });
   } catch (error) {
     console.log(error);
     return res.status(400).json({ status: false, message: error.message });
   }
 });
-
 // Complete a task and update user points
 const completeTask = asyncHandler(async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (task) {
-      task.status = "completed";
+      task.stage = "completed"; // Ensure the status is correctly updated to 'completed'
       await task.save();
 
       const user = await User.findById(req.body.userId);
-      user.points += task.points;
-      await user.save();
-
-      // Check for achievements
-      const achievements = await Achievement.find({});
-      for (const achievement of achievements) {
-        const completedTasks = await Task.find({
-          team: user._id,
-          status: "completed",
-        });
-        if (completedTasks.length >= achievement.tasksRequired) {
-          if (!user.achievements.includes(achievement._id)) {
-            user.achievements.push(achievement._id);
-            await user.save();
-          }
-        }
+      if (user) {
+        user.points += 20; // Assuming fixed points for completion
+        await user.save();
+        res.status(200).json({ message: "Task completed and points updated", user });
+      } else {
+        res.status(404).json({ message: "User not found" });
       }
-
-      res.status(200).json({ message: "Task completed and points updated", user });
     } else {
       res.status(404).json({ message: "Task not found" });
     }
@@ -404,6 +422,52 @@ const completeTask = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Server error", error });
   }
 });
+// Update the stage of a task
+const updateTaskStage = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { stage } = req.body;
+
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({ status: false, message: "Task not found." });
+    }
+
+    task.stage = stage.toLowerCase();
+
+    await task.save();
+
+    if (task.stage === 'completed') {
+      await User.updateMany(
+        { _id: { $in: task.team } },
+        { $inc: { points: 20 } }
+      );
+
+      const achievements = await Achievement.find({});
+      for (const user of task.team) {
+        const completedTasks = await Task.find({
+          team: user,
+          stage: "completed",
+        }).countDocuments();
+        
+        for (const achievement of achievements) {
+          if (completedTasks >= achievement.tasksRequired) {
+            const userDoc = await User.findById(user);
+            if (!userDoc.achievements.includes(achievement._id)) {
+              userDoc.achievements.push(achievement._id);
+              await userDoc.save();
+            }
+          }
+        }
+      }
+    }
+    res.status(200).json({ status: true, message: "Task stage changed successfully." });
+  } catch (error) {
+    return res.status(400).json({ status: false, message: error.message });
+  }
+});
+
 
 export {
   createSubTask,
@@ -417,5 +481,5 @@ export {
   trashTask,
   updateTask,
   updateTaskStage,
-  completeTask // New export for completing tasks
+  completeTask // Ensure completeTask is exported
 };

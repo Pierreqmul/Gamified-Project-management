@@ -19,11 +19,9 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
-
   const handleLogin = async (data) => {
     try {
       const res = await login(data).unwrap();
-
       dispatch(setCredentials(res));
       navigate("/");
     } catch (err) {
@@ -33,14 +31,13 @@ const Login = () => {
 
   useEffect(() => {
     user && navigate("/dashboard");
-  }, [user]);
-
+  }, [user, navigate]);
   return (
     <div className='w-full min-h-screen flex items-center justify-center flex-col lg:flex-row bg-[#f3f4f6] dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#302943] via-slate-900 to-black'>
       <div className='w-full md:w-auto flex gap-0 md:gap-40 flex-col md:flex-row items-center justify-center'>
         <div className='h-full w-full lg:w-2/3 flex flex-col items-center justify-center'>
           <div className='w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20'>
-            <img src={illustration} alt="Illustration" className='w-1/2 h-auto' /> {/* Add this line */}
+            <img src={illustration} alt="Illustration" className='w-1/2 h-auto' />
             <span className='flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base dark:border-gray-700 dark:text-blue-400 border-gray-300 text-gray-600'>
               Compete to complete
             </span>
@@ -50,11 +47,10 @@ const Login = () => {
             </p>
           </div>
         </div>
-
         <div className='w-full md:w-1/3 p-4 md:p-1 flex flex-col justify-center items-center'>
           <form
             onSubmit={handleSubmit(handleLogin)}
-            className='form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white dark:bg-slate-900 px-10 pt-14 pb-14 rounded-2x2' /* Adjust the class here */
+            className='form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white dark:bg-slate-900 px-10 pt-14 pb-14 rounded-2x2'
           >
             <div>
               <p className='text-blue-600 text-3xl font-bold text-center'>

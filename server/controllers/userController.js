@@ -37,7 +37,6 @@ const loginUser = asyncHandler(async (req, res) => {
       .json({ status: false, message: "Invalid email or password" });
   }
 });
-
 // POST - Register a new user
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, isAdmin, role, title } = req.body;
@@ -57,6 +56,7 @@ const registerUser = asyncHandler(async (req, res) => {
     isAdmin,
     role,
     title,
+    points: 0 // Initialize points field
   });
 
   if (user) {
@@ -80,7 +80,14 @@ const logoutUser = (req, res) => {
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
-
+const getUserById = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('name email points');
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+});
 const getTeamList = asyncHandler(async (req, res) => {
   const { search } = req.query;
   let query = {};
@@ -115,7 +122,6 @@ const getNotificationsList = asyncHandler(async (req, res) => {
 
   res.status(201).json(notice);
 });
-
 // @GET  - get user notifications
 const markNotificationRead = asyncHandler(async (req, res) => {
   try {
@@ -157,7 +163,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 
   if (user) {
     user.name = req.body.name || user.name;
-    // user.email = req.body.email || user.email;
     user.title = req.body.title || user.title;
     user.role = req.body.role || user.role;
 
@@ -174,8 +179,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(404).json({ status: false, message: "User not found" });
   }
 });
-
-// PUT - active/disactivate user profile
+// PUT - activate/deactivate user profile
 const activateUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -220,6 +224,15 @@ const changeUserPassword = asyncHandler(async (req, res) => {
   }
 });
 
+const getLeaderboard = asyncHandler(async (req, res) => {
+  const leaderboard = await User.find({})
+    .sort({ points: -1 })
+    .select('name points')
+    .limit(10);
+  res.json(leaderboard);
+});
+
+
 // DELETE - delete user account
 const deleteUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -228,21 +241,6 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
 
   res.status(200).json({ status: true, message: "User deleted successfully" });
 });
-
-// @GET - Get user achievements
-const getUserAchievements = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).populate("achievements");
-    if (user) {
-      res.status(200).json(user.achievements);
-    } else {
-      res.status(404).json({ message: "User not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error });
-  }
-});
-
 // New controller function for completing a task
 const completeTask = asyncHandler(async (req, res) => {
   try {
@@ -254,7 +252,8 @@ const completeTask = asyncHandler(async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
-    task.status = 'completed';
+    task.stage = 'completed';
+    task.completed = true;
     await task.save();
 
     // Add 20 points to the user
@@ -276,12 +275,13 @@ export {
   changeUserPassword,
   deleteUserProfile,
   getTeamList,
+  getUserById,
   loginUser,
   logoutUser,
+  getLeaderboard,
   registerUser,
   updateUserProfile,
   getNotificationsList,
   markNotificationRead,
-  getUserAchievements,
   completeTask // Include the new export
 };

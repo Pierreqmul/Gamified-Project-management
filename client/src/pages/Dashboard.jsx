@@ -15,7 +15,8 @@ import { useGetDashboardStatsQuery } from "../redux/slices/api/taskApiSlice.js";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import LeaderDashboard from "./LeaderDashboard.jsx"; 
+import LeaderDashboard from "./LeaderDashboard.jsx";
+
 const Card = ({ label, count, bg, icon }) => {
   return (
     <div className='w-full h-32 bg-white p-5 shadow-md rounded-md flex items-center justify-between'>
@@ -39,20 +40,9 @@ const Card = ({ label, count, bg, icon }) => {
 const Dashboard = () => {
   const { data, isLoading } = useGetDashboardStatsQuery();
   const { user } = useSelector((state) => state.auth);
-  const [achievements, setAchievements] = useState([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    const fetchAchievements = async () => {
-      try {
-        const response = await axios.get(`/api/achievements`);
-        setAchievements(response.data);
-      } catch (error) {
-        console.error("Error fetching achievements", error);
-      }
-    };
-
-    fetchAchievements();
   }, [user._id]);
 
   const totals = data?.tasks || [];
@@ -103,7 +93,6 @@ const Dashboard = () => {
             <Card key={index} icon={icon} bg={bg} label={label} count={total} />
           ))}
         </div>
-
         <div className='w-full bg-white my-16 p-4 rounded shadow-sm'>
           <h4 className='text-xl text-gray-500 font-bold mb-2'>
             Chart by Priority
@@ -111,34 +100,18 @@ const Dashboard = () => {
           <Chart data={data?.graphData} />
         </div>
         <div className='w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8'>
-          {/* RECENT AUTHORS */}
           {data && <TaskTable tasks={data?.last10Task} />}
-          {/* RECENT USERS */}
           {data && user?.isAdmin && <UserTable users={data?.users} />}
         </div>
-
         <div className='w-full bg-white p-4 rounded shadow-sm mt-8'>
           <h4 className='text-xl text-gray-500 font-bold mb-2'>User Points</h4>
           <div className='text-2xl font-semibold'>{user.points}</div>
         </div>
-        <div className='w-full bg-white p-4 rounded shadow-sm mt-8'>
-          <h4 className='text-xl text-gray-500 font-bold mb-2'>Achievements</h4>
-          <ul className='list-disc list-inside'>
-            {achievements.map((achievement) => (
-              <li key={achievement._id} className='text-gray-700'>
-                {achievement.name}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Leaderboard */}
         <LeaderDashboard />
       </>
     </div>
   );
 };
-
 const UserTable = ({ users }) => {
   const TableHeader = () => (
     <thead className='border-b border-gray-300 dark:border-gray-600'>
@@ -228,7 +201,6 @@ const TaskTable = ({ tasks }) => {
           <span className='capitalize'>{task?.priority}</span>
         </div>
       </td>
-
       <td className='py-2'>
         <div className='flex'>
           {task?.team.map((m, index) => (
@@ -244,7 +216,6 @@ const TaskTable = ({ tasks }) => {
           ))}
         </div>
       </td>
-
       <td className='py-2 hidden md:block'>
         <span className='text-base text-gray-600'>
           {moment(task?.date).fromNow()}
@@ -254,23 +225,21 @@ const TaskTable = ({ tasks }) => {
   );
 
   return (
-    <>
-      <div
-        className={clsx(
-          "w-full bg-white dark:bg-[#1f1f1f] px-2 md:px-4 pt-4 pb-4 shadow-md rounded",
-          user?.isAdmin ? "md:w-2/3" : ""
-        )}
-      >
-        <table className='w-full '>
-          <TableHeader />
-          <tbody className=''>
-            {tasks.map((task, id) => (
-              <TableRow key={task?._id + id} task={task} />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </>
+    <div
+      className={clsx(
+        "w-full bg-white dark:bg-[#1f1f1f] px-2 md:px-4 pt-4 pb-4 shadow-md rounded",
+        user?.isAdmin ? "md:w-2/3" : ""
+      )}
+    >
+      <table className='w-full '>
+        <TableHeader />
+        <tbody className=''>
+          {tasks.map((task, id) => (
+            <TableRow key={task?._id + id} task={task} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

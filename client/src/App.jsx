@@ -1,12 +1,17 @@
-import { Transition } from "@headlessui/react";
-import { Fragment, useRef } from "react";
-import { IoMdClose } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
-import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
-import { Toaster } from "sonner";
-import { Navbar, Sidebar } from "./components";
-import { Dashboard, Login, TaskDetail, Tasks, Trash, Users } from "./pages";
-import { setOpenSidebar } from "./redux/slices/authSlice";
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Routes, Route, Navigate, useLocation, useNavigate, useParams, Outlet } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { useSelector, useDispatch } from 'react-redux';
+import { Navbar, Sidebar } from './components';
+import { Dashboard, Login, TaskDetail, Tasks, Trash, Users } from './pages';
+import { setOpenSidebar } from './redux/slices/authSlice';
+import store from './redux/store';
+import { IoMdClose } from 'react-icons/io';
+import { Transition } from '@headlessui/react';
+import { Fragment, useRef } from 'react';
+
+import './index.css';
 
 function Layout() {
   const { user } = useSelector((state) => state.auth);
@@ -43,54 +48,49 @@ const MobileSidebar = () => {
   };
 
   return (
-    <>
-      <Transition
-        show={isSidebarOpen}
-        as={Fragment}
-        enter='transition-opacity duration-700'
-        enterFrom='opacity-x-10'
-        enterTo='opacity-x-100'
-        leave='transition-opacity duration-700'
-        leaveFrom='opacity-x-100'
-        leaveTo='opacity-x-0'
+    <Transition
+      show={isSidebarOpen}
+      as={Fragment}
+      enter='transition-opacity duration-700'
+      enterFrom='opacity-x-10'
+      enterTo='opacity-x-100'
+      leave='transition-opacity duration-700'
+      leaveFrom='opacity-x-100'
+      leaveTo='opacity-x-0'
+    >
+      <div
+        ref={(node) => (mobileMenuRef.current = node)}
+        className={`md:hidden w-full h-full bg-black/40 transition-transform duration-700 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        onClick={() => closeSidebar()}
       >
-        {(ref) => (
-          <div
-            ref={(node) => (mobileMenuRef.current = node)}
-            className={`md:hidden w-full h-full bg-black/40 transition-transform duration-700 transform
-             ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
-            onClick={() => closeSidebar()}
-          >
-            <div className='bg-white w-3/4 h-full'>
-              <div className='w-full flex justify-end px-5 pt-5'>
-                <button
-                  onClick={() => closeSidebar()}
-                  className='flex justify-end items-end'
-                >
-                  <IoMdClose size={25} />
-                </button>
-              </div>
-
-              <div className='-mt-10'>
-                <Sidebar />
-              </div>
-            </div>
+        <div className='bg-white w-3/4 h-full'>
+          <div className='w-full flex justify-end px-5 pt-5'>
+            <button
+              onClick={() => closeSidebar()}
+              className='flex justify-end items-end'
+            >
+              <IoMdClose size={25} />
+            </button>
           </div>
-        )}
-      </Transition>
-    </>
+
+          <div className='-mt-10'>
+            <Sidebar />
+          </div>
+        </div>
+      </div>
+    </Transition>
   );
 };
 
 const App = () => {
-  const theme = "light";
+  const theme = 'light';
 
   return (
     <main className={theme}>
       <div className='w-full min-h-screen bg-[#f3f4f6] dark:bg-[#0d0d0df4]'>
         <Routes>
           <Route element={<Layout />}>
-            <Route index psth='/' element={<Navigate to='/dashboard' />} />
+            <Route index path='/' element={<Navigate to='/dashboard' />} />
             <Route path='/dashboard' element={<Dashboard />} />
             <Route path='/tasks' element={<Tasks />} />
             <Route path='/completed/:status?' element={<Tasks />} />
@@ -100,14 +100,20 @@ const App = () => {
             <Route path='/task/:id' element={<TaskDetail />} />
             <Route path='/team' element={<Users />} />
           </Route>
-
           <Route path='/log-in' element={<Login />} />
         </Routes>
       </div>
-
       <Toaster richColors position='top-center' />
     </main>
   );
 };
 
-export default App;
+const Root = () => (
+  <Provider store={store}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </Provider>
+);
+
+export default Root;

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     title: { type: String, required: true },
@@ -11,8 +11,7 @@ const userSchema = new Schema(
     isAdmin: { type: Boolean, default: false },
     tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
     isActive: { type: Boolean, default: true },
-    points: { type: Number, default: 0 },  // New field for points
-    achievements: [{ type: Schema.Types.ObjectId, ref: "Achievement" }]  // New field for achievements
+    points: { type: Number, default: 0 },  // Field for points
   },
   { timestamps: true }
 );

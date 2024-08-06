@@ -43,6 +43,8 @@ const taskSchema = new Schema(
     assets: [String],
     team: [{ type: Schema.Types.ObjectId, ref: "User" }],
     isTrashed: { type: Boolean, default: false },
+    points: { type: Number, default: 0 }, // Ensure points have a default value
+    completed: { type: Boolean, default: false }, // New field to mark completion
   },
   { timestamps: true }
 );
