@@ -20,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001","http://localhost:5173"],
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:5173"],
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
   })
@@ -32,8 +32,8 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 // Define Routes
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes);
+app.use("/api/user", userRoutes); // Ensure this matches the base path in the client
+app.use("/api/task", taskRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/status", statusRoutes);
 
