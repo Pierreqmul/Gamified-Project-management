@@ -50,6 +50,36 @@ const createTask = asyncHandler(async (req, res) => {
     return res.status(400).json({ status: false, message: error.message });
   }
 });
+// Get tasks by status
+const getTasksByStatus = asyncHandler(async (req, res) => {
+  try {
+    const totalTasks = await Task.countDocuments();
+    const todoTasks = await Task.countDocuments({ stage: "todo" });
+    const inProgressTasks = await Task.countDocuments({ stage: "in progress" });
+    const completedTasks = await Task.countDocuments({ stage: "completed" });
+
+    const todoPercentage = (todoTasks / totalTasks) * 100 || 0;
+    const inProgressPercentage = (inProgressTasks / totalTasks) * 100 || 0;
+    const completedPercentage = (completedTasks / totalTasks) * 100 || 0;
+
+    const updatedData = {
+      statusCounts: {
+        todo: todoTasks,
+        inProgress: inProgressTasks,
+        completed: completedTasks,
+      },
+      statusPercentages: {
+        todo: todoPercentage,
+        inProgress: inProgressPercentage,
+        completed: completedPercentage,
+      },
+    };
+
+    res.status(200).json(updatedData);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+});
 
 const duplicateTask = asyncHandler(async (req, res) => {
   try {
@@ -447,5 +477,6 @@ export {
   trashTask,
   updateTask,
   updateTaskStage,
+  getTasksByStatus,
   completeTask // Ensure completeTask is exported
 };

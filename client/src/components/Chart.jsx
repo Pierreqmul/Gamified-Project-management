@@ -1,27 +1,29 @@
-import React from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import React from 'react';
+import { Bar } from '@ant-design/plots';
 
-export const Chart = ({ data }) => {
-  return (
-    <ResponsiveContainer width={"100%"} height={500}>
-      <BarChart width={150} height={40} data={data}>
-        <XAxis dataKey='name' />
-        <YAxis />
-        <Tooltip
-          cursor={false}
-          contentStyle={{ textTransform: "capitalize" }}
-        />
-        <CartesianGrid strokeDasharray='3 3' />
-        <Bar dataKey='total' fill='#8884d8' />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+const Chart = ({ data }) => {
+  const config = {
+    data,
+    xField: 'total',
+    yField: 'name',
+    seriesField: 'name',
+    legend: {
+      position: 'top-left',
+    },
+    colorField: 'name',
+    color: ['#1d4ed8', '#0f766e', '#f59e0b', '#be185d'],
+    label: {
+      position: 'middle', // Changed to a valid position
+      style: {
+        fill: '#FFFFFF',
+        opacity: 0.6,
+      },
+    },
+    height: 300, // Adjust height as needed
+    //width: '100%', // Adjust width as needed
+  };
+
+  return <Bar {...config} />;
 };
+
+export default Chart;

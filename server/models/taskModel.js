@@ -43,8 +43,19 @@ const taskSchema = new Schema(
     assets: [String],
     team: [{ type: Schema.Types.ObjectId, ref: "User" }],
     isTrashed: { type: Boolean, default: false },
-    points: { type: Number, default: 0 }, // Ensure points have a default value
-    completed: { type: Boolean, default: false }, // New field to mark completion
+    points: { type: Number, default: 0 },
+    completed: { type: Boolean, default: false },
+    // New fields for pie chart data
+    statusCounts: {
+      todo: { type: Number, default: 0 },
+      inProgress: { type: Number, default: 0 },
+      completed: { type: Number, default: 0 },
+    },
+    statusPercentages: {
+      todo: { type: Number, default: 0 },
+      inProgress: { type: Number, default: 0 },
+      completed: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 );

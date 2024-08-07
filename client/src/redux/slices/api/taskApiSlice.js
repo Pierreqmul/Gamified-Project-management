@@ -1,5 +1,6 @@
 import { TASKS_URL } from "../../../utils/constants";
 import { apiSlice } from "../apiSlice";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const taskApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -78,6 +79,13 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    getTasksByStatus: builder.query({
+      query: () => ({
+        url: `${TASKS_URL}/status`,
+        method: "GET",
+        credentials: "include",
+      }),
+    }),
     changeTaskStage: builder.mutation({
       query: (data) => ({
         url: `${TASKS_URL}/change-stage/${data?.id}`,
@@ -108,6 +116,7 @@ export const {
   useTrashTaskMutation,
   useDeleteRestoreTaskMutation,
   useGetDashboardStatsQuery,
+  useGetTasksByStatusQuery,
   useChangeTaskStageMutation,
   useCompleteTaskMutation,
 } = taskApiSlice;

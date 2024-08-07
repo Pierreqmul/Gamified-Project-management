@@ -7,15 +7,18 @@ import {
   duplicateTask,
   getTask,
   getTasks,
+  getTasksByStatus,
   postTaskActivity,
   trashTask,
   updateTask,
   updateTaskStage,
-  completeTask // New import for completing tasks
+  completeTask,
 } from "../controllers/taskController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
+
+router.route('/status').get(protectRoute, getTasksByStatus);
 
 router.post("/create", protectRoute, isAdminRoute, createTask);
 router.post("/duplicate/:id", protectRoute, isAdminRoute, duplicateTask);
@@ -28,7 +31,7 @@ router.get("/:id", protectRoute, getTask);
 router.put("/create-subtask/:id", protectRoute, isAdminRoute, createSubTask);
 router.put("/update/:id", protectRoute, isAdminRoute, updateTask);
 router.put("/change-stage/:id", protectRoute, updateTaskStage);
-router.put("/complete/:id", protectRoute, completeTask); // New route for completing tasks
+router.put("/complete/:id", protectRoute, completeTask);
 router.put("/:id", protectRoute, isAdminRoute, trashTask);
 
 router.delete(
