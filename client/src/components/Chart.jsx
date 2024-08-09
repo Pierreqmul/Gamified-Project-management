@@ -19,7 +19,7 @@ const Chart = ({ data }) => {
         opacity: 0.6,
       },
     },
-    height: 300, // Adjust height as needed
+    height: 270, // Adjust height as needed
     //width: '100%', // Adjust width as needed
   };
 

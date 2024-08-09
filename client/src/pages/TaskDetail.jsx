@@ -14,7 +14,7 @@ import {
 import { RxActivityLog } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Button, Loading, Tabs } from "../components";
+import { Button, Loading, CustomTabs } from "../components";
 import { TaskColor } from "../components/tasks";
 import {
   useGetSingleTaskQuery,
@@ -206,7 +206,7 @@ const TaskDetail = () => {
     <div className='w-full flex flex-col gap-3 mb-4 overflow-y-hidden'>
       {/* task detail */}
       <h1 className='text-2xl text-gray-600 font-bold'>{task?.title}</h1>
-      <Tabs tabs={TABS} setSelected={setSelected}>
+      <CustomTabs tabs={TABS} setSelected={setSelected}>
         {selected === 0 ? (
           <>
             <div className='w-full flex flex-col md:flex-row gap-5 2xl:gap-8 bg-white shadow rounded-md px-8 py-8 overflow-y-auto'>
@@ -322,7 +322,7 @@ const TaskDetail = () => {
             <Activities activity={task?.activities} refetch={refetch} id={id} />
           </>
         )}
-      </Tabs>
+      </CustomTabs>
     </div>
   );
 };

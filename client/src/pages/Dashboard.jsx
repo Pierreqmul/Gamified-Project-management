@@ -79,59 +79,78 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className='h-full py-4' style={{ backgroundColor: '#FFFFFF' }}>
+    <div className='h-full py-3' style={{ backgroundColor: 'transparent' }}>
       <Row gutter={[16, 8]}>
         {stats.map(({ icon, bg, label, total }, index) => (
-          <Col span={6} key={index}>
-            <Card className='shadow-md' style={{ height: '100px', borderRadius: '12px', backgroundColor: bg }}>
-              <div className='h-full flex flex-col justify-between'>
-                <div className='flex items-center justify-between'>
+          <Col span={4} key={index}>
+            <Card className='shadow-md' style={{ height: '110px', borderRadius: '20px', backgroundColor: bg }}>
+              <div className='h-full flex flex-col justify-center p-0'>
+                <div className='flex items-center justify-center'>
                   <span className='text-2xl font-semibold text-white'>{total}</span>
                   <div className='w-12 h-12 rounded-full flex items-center justify-center text-white'>
                     {icon}
                   </div>
                 </div>
-                <p className='text-base text-white mt-2'>{label}</p>
+                <p className='text-base text-white mt-auto text-center'>{label}</p>
               </div>
             </Card>
           </Col>
         ))}
+        <Col span={8}>
+          <Card className='shadow-md' style={{
+            height: '100px',
+            borderRadius: '20px',
+            backgroundImage: 'url(/src/assets/points2.gif)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}>
+            <div className='h-full flex flex-col justify-center p-2'>
+              <div>
+                <h4 className='text-xl text-white font-bold'>Your Points</h4>
+              </div>
+              <div className='text-xl font-semibold text-white'>{user.points}</div>
+            </div>
+          </Card>
+        </Col>
       </Row>
 
-      <Row gutter={[16, 8]} className='my-16'>
-        <Col span={12}>
+      <Row gutter={[16, 8]} className='my-10'>
+        <Col span={10}>
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
-            <h4 className='text-xl text-gray-700 font-bold mb-2'>
-              Chart by Priority
-            </h4>
+            <h4 className='text-xl text-gray-700 font-bold mb-2'>Leaderboard</h4>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <LeaderDashboard />
+            </div>
+          </Card>
+        </Col>
+        <Col span={7}>
+          <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
+            <h4 className='text-xl text-gray-700 font-bold mb-8 w-auto'>Chart by Priority</h4>
             <Chart data={data?.graphData} />
           </Card>
         </Col>
-        <Col span={12}>
+        <Col span={7}>
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
-            <h4 className='text-xl text-gray-700 font-bold mb-2'>
-              Task Progress
-            </h4>
+            <h4 className='text-xl text-gray-700 font-bold mb-2'>Task Progress</h4>
             <PieChart data={tasksData} />
           </Card>
         </Col>
       </Row>
 
-      <Row gutter={[16, 8]} className='py-8'>
-        <Col span={16}>
-          {data && <TaskTable tasks={data?.last10Task} />}
+      <Row gutter={[16, 8]} className='py-0'>
+        <Col span={12}>
+          <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
+            <h4 className='text-xl text-gray-700 font-bold mb-2'>Recent Tasks</h4>
+            {data && <TaskTable tasks={data?.last10Task} />}
+          </Card>
         </Col>
-        <Col span={8}>
-          {data && user?.isAdmin && <UserTable users={data?.users} />}
+        <Col span={12}>
+          <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
+            <h4 className='text-xl text-gray-700 font-bold mb-2'>Users</h4>
+            {data && user?.isAdmin && <UserTable users={data?.users} />}
+          </Card>
         </Col>
       </Row>
-
-      <Card className='shadow-sm mt-8' style={{ backgroundColor: '#FFD700', borderRadius: '12px' }}>
-        <h4 className='text-xl text-gray-700 font-bold mb-2'>Your Points</h4>
-        <div className='text-2xl font-semibold'>{user.points}</div>
-      </Card>
-
-      <LeaderDashboard />
     </div>
   );
 };
@@ -191,6 +210,12 @@ const TaskTable = ({ tasks }) => {
     low: <MdKeyboardArrowDown />,
   };
 
+  const TASK_STAGE_STYLES = {
+    todo: "bg-blue-100",
+    "in progress": "bg-yellow-100",
+    completed: "bg-green-100",
+  };
+
   const columns = [
     {
       title: 'Task Title',
@@ -198,7 +223,7 @@ const TaskTable = ({ tasks }) => {
       key: 'title',
       render: (text, task) => (
         <div className='flex items-center gap-2'>
-          <div className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])} />
+          <div className={clsx("w-4 h-4 rounded-full", TASK_STAGE_STYLES[task.stage])} />
           <p className='text-base text-black dark:text-gray-400'>{task?.title}</p>
         </div>
       )
@@ -217,7 +242,7 @@ const TaskTable = ({ tasks }) => {
       )
     },
     {
-      title: 'Team',
+      title:'Team',
       dataIndex: 'team',
       key: 'team',
       render: team => (

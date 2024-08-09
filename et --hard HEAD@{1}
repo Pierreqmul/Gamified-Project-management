@@ -1,0 +1,16 @@
+[33md144fe9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to HEAD
+[33md144fe9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: commit: dashboard updates
+[33m4fb05ef[m HEAD@{2}: commit: mvp
+[33m5f09532[m HEAD@{3}: commit: leaderboard functionality
+[33m4053f7c[m HEAD@{4}: commit: update 3
+[33m0920fa0[m HEAD@{5}: commit: test 1
+[33me3772d8[m HEAD@{6}: checkout: moving from gamification-2 to main
+[33m6eb3565[m[33m ([m[1;31morigin/Gamification-2[m[33m, [m[1;32mGamification-2[m[33m)[m HEAD@{7}: checkout: moving from main to gamification-2
+[33me3772d8[m HEAD@{8}: checkout: moving from gamification-2 to main
+[33m6eb3565[m[33m ([m[1;31morigin/Gamification-2[m[33m, [m[1;32mGamification-2[m[33m)[m HEAD@{9}: checkout: moving from main to gamification-2
+[33me3772d8[m HEAD@{10}: checkout: moving from Gamification-2 to main
+[33m6eb3565[m[33m ([m[1;31morigin/Gamification-2[m[33m, [m[1;32mGamification-2[m[33m)[m HEAD@{11}: commit: merge
+[33m5bf177c[m[33m ([m[1;31morigin/Gamification[m[33m, [m[1;32mGamification[m[33m)[m HEAD@{12}: checkout: moving from Gamification to Gamification-2
+[33m5bf177c[m[33m ([m[1;31morigin/Gamification[m[33m, [m[1;32mGamification[m[33m)[m HEAD@{13}: commit: first try
+[33me3772d8[m HEAD@{14}: checkout: moving from main to Gamification
+[33me3772d8[m HEAD@{15}: commit (initial): init

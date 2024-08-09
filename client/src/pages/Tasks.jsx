@@ -3,9 +3,9 @@ import { FaList } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import { MdGridView } from "react-icons/md";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Button, Loading, Table, Tabs, Title } from "../components";
+import { Button, Loading, CustomTabs, Title, Table } from "../components/index";
 import { AddTask, BoardView, TaskTitle } from "../components/tasks";
-import { useGetAllTaskQuery, useUpdateTaskMutation } from "../redux/slices/api/taskApiSlice"; // Updated import
+import { useGetAllTaskQuery, useUpdateTaskMutation } from "../redux/slices/api/taskApiSlice";
 import { TASK_TYPE } from "../utils";
 import { useSelector } from "react-redux";
 
@@ -52,37 +52,37 @@ const Tasks = () => {
 
   if (isLoading) {
     return (
-      <div className='py-10'>
+      <div className="py-10">
         <Loading />
       </div>
     );
   }
 
   return (
-    <div className='w-full'>
-      <div className='flex items-center justify-between mb-4'>
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-4">
         <Title title={status ? `${status} Tasks` : "Tasks"} />
 
         {!status && user?.isAdmin && (
           <Button
-            label='Create Task'
-            icon={<IoMdAdd className='text-lg' />}
-            className='flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5'
+            label="Create Task"
+            icon={<IoMdAdd className="text-lg" />}
+            className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
             onClick={() => setOpen(true)}
           />
         )}
       </div>
 
       <div>
-        <Tabs tabs={TABS} setSelected={setSelected}>
+        <CustomTabs tabs={TABS} setSelected={setSelected}>
           {!status && (
-            <div className='w-full flex justify-between gap-4 md:gap-x-12 py-4'>
-              <TaskTitle label='To Do' className={TASK_TYPE.todo} />
+            <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
+              <TaskTitle label="To Do" className={TASK_TYPE.todo} />
               <TaskTitle
-                label='In Progress'
+                label="In Progress"
                 className={TASK_TYPE["in progress"]}
               />
-              <TaskTitle label='Completed' className={TASK_TYPE.completed} />
+              <TaskTitle label="Completed" className={TASK_TYPE.completed} />
             </div>
           )}
 
@@ -91,7 +91,7 @@ const Tasks = () => {
           ) : (
             <Table tasks={data?.tasks} onStageChange={handleStageChange} />
           )}
-        </Tabs>
+        </CustomTabs>
       </div>
       <AddTask open={open} setOpen={setOpen} />
     </div>

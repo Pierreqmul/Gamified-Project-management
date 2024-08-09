@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useCompleteTaskMutation, useGetAllTaskQuery } from '../../redux/slices/api/taskApiSlice';
+import { List, Button, Typography, Space, message } from 'antd';
+
+const { Title } = Typography;
 
 const TaskList = ({ userId }) => {
   const [tasks, setTasks] = useState([]);
@@ -19,25 +22,37 @@ const TaskList = ({ userId }) => {
   const handleComplete = async (taskId) => {
     try {
       await completeTask({ userId, id: taskId }).unwrap();
+      message.success('Task completed successfully!');
       refetch(); // Refresh task list after completion
     } catch (err) {
       console.error('Failed to complete the task: ', err);
+      message.error('Failed to complete the task.');
     }
   };
 
   return (
     <div>
-      <h2>Tasks</h2>
-      <ul>
-        {tasks.map(task => (
-          <li key={task._id}>
-            {task.title} - {task.points} points
-            {!task.completed && (
-              <button onClick={() => handleComplete(task._id)}>Complete</button>
-            )}
-          </li>
-        ))}
-      </ul>
+      <Title level={2}>Tasks</Title>
+      <List
+        itemLayout="horizontal"
+        dataSource={tasks}
+        renderItem={(task) => (
+          <List.Item
+            actions={[
+              !task.completed && (
+                <Button type="primary" onClick={() => handleComplete(task._id)}>
+                  Complete
+                </Button>
+              ),
+            ]}
+          >
+            <List.Item.Meta
+              title={task.title}
+              description={`${task.points} points`}
+            />
+          </List.Item>
+        )}
+      />
     </div>
   );
 };

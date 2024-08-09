@@ -62,13 +62,12 @@ const LeaderDashboard = () => {
   }));
 
   return (
-    <Card className='w-full bg-white p-4 rounded shadow-sm mt-8' style={{ borderRadius: '10px' }}>
-      <h4 className='text-xl text-gray-500 font-bold mb-2'>Leaderboard</h4>
+    <Card className='w-full bg-white rounded' style={{ borderRadius: '20px' }}>
       <Table
         dataSource={dataSource}
         columns={columns}
         pagination={false}
-        style={{ borderRadius: '50px' }}
+        style={{ borderRadius: '20px' }}
       />
     </Card>
   );

@@ -9,7 +9,7 @@ import Navbar from "./Navbar";
 import SelectList from "./SelectList";
 import Sidebar from "./Sidebar";
 import Table from "./Table";
-import Tabs from "./Tabs";
+import CustomTabs from "./Tabs";
 import Textbox from "./Textbox";
 import Title from "./Title";
 import UserAvatar from "./UserAvatar";
@@ -28,7 +28,7 @@ export {
   SelectList,
   Sidebar,
   Table,
-  Tabs,
+  CustomTabs,
   Textbox,
   Title,
   UserAction,

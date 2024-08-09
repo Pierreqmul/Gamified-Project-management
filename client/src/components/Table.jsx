@@ -1,15 +1,11 @@
-import clsx from "clsx";
-import { useState } from "react";
-import {
-  MdKeyboardArrowDown,
-  MdKeyboardArrowUp,
-  MdKeyboardDoubleArrowUp,
-} from "react-icons/md";
+import React, { useState } from "react";
+import { Table as AntTable, Button, Avatar, Popconfirm, Tag, Space } from "antd";
+import { MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp } from "react-icons/md";
 import { toast } from "sonner";
 import { useTrashTaskMutation } from "../redux/slices/api/taskApiSlice.js";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../utils/index.js";
-import { ConfirmatioDialog, UserInfo, Button } from "./index";
-import { AddTask, TaskAssets, TaskColor } from "./tasks";
+import { AddTask, TaskAssets, TaskColor } from "../components/tasks/index.js";
+import { ConfirmatioDialog, UserInfo } from "./index.js";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -53,102 +49,89 @@ const Table = ({ tasks }) => {
     }
   };
 
-  const TableHeader = () => (
-    <thead className='w-full border-b border-gray-300 dark:border-gray-600'>
-      <tr className='w-full text-black dark:text-white  text-left'>
-        <th className='py-2'>Task Title</th>
-        <th className='py-2'>Priority</th>
-        <th className='py-2 line-clamp-1'>Created At</th>
-        <th className='py-2'>Assets</th>
-        <th className='py-2'>Team</th>
-      </tr>
-    </thead>
-  );
-
-  const TableRow = ({ task }) => (
-    <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
-      <td className='py-2'>
-        <div className='flex items-center gap-2'>
+  const columns = [
+    {
+      title: "Task Title",
+      dataIndex: "title",
+      key: "title",
+      render: (text, task) => (
+        <Space>
           <TaskColor className={TASK_TYPE[task.stage]} />
-          <p className='w-full line-clamp-2 text-base text-black'>
-            {task?.title}
-          </p>
-        </div>
-      </td>
-
-      <td className='py-2'>
-        <div className={"flex gap-1 items-center"}>
-          <span className={clsx("text-lg", PRIOTITYSTYELS[task?.priority])}>
-            {ICONS[task?.priority]}
-          </span>
-          <span className='capitalize line-clamp-1'>
-            {task?.priority} Priority
-          </span>
-        </div>
-      </td>
-
-      <td className='py-2'>
-        <span className='text-sm text-gray-600'>
-          {formatDate(new Date(task?.date))}
-        </span>
-      </td>
-
-      <td className='py-2'>
+          <span>{text}</span>
+        </Space>
+      ),
+    },
+    {
+      title: "Priority",
+      dataIndex: "priority",
+      key: "priority",
+      render: (priority) => (
+        <Tag color={PRIOTITYSTYELS[priority]}>
+          {ICONS[priority]} {priority.charAt(0).toUpperCase() + priority.slice(1)} Priority
+        </Tag>
+      ),
+    },
+    {
+      title: "Created At",
+      dataIndex: "date",
+      key: "date",
+      render: (date) => formatDate(new Date(date)),
+    },
+    {
+      title: "Assets",
+      key: "assets",
+      render: (task) => (
         <TaskAssets
           activities={task?.activities?.length}
           subTasks={task?.subTasks?.length}
           assets={task?.assets?.length}
         />
-      </td>
-
-      <td className='py-2'>
-        <div className='flex'>
+      ),
+    },
+    {
+      title: "Team",
+      key: "team",
+      render: (task) => (
+        <Avatar.Group maxCount={3}>
           {task?.team?.map((m, index) => (
-            <div
+            <Avatar
               key={m._id}
-              className={clsx(
-                "w-7 h-7 rounded-full text-white flex items-center justify-center text-sm -mr-1",
-                BGS[index % BGS?.length]
-              )}
+              style={{
+                backgroundColor: BGS[index % BGS?.length],
+              }}
             >
-              <UserInfo user={m} />
-            </div>
+              {m.name[0]}
+            </Avatar>
           ))}
-        </div>
-      </td>
-
-      <td className='py-2 flex gap-2 md:gap-4 justify-end'>
-        <Button
-          className='text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base'
-          label='Edit'
-          type='button'
-          onClick={() => editClickHandler(task)}
-        />
-
-        <Button
-          className='text-red-700 hover:text-red-500 sm:px-0 text-sm md:text-base'
-          label='Delete'
-          type='button'
-          onClick={() => deleteClicks(task._id)}
-        />
-      </td>
-    </tr>
-  );
+        </Avatar.Group>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (task) => (
+        <Space>
+          <Button type="link" onClick={() => editClickHandler(task)}>
+            Edit
+          </Button>
+          <Popconfirm
+            title="Are you sure you want to delete this task?"
+            onConfirm={() => deleteClicks(task._id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <>
-      <div className='bg-white  px-2 md:px-4 pt-4 pb-9 shadow-md rounded'>
-        <div className='overflow-x-auto'>
-          <table className='w-full '>
-            <TableHeader />
-            <tbody>
-              {tasks.map((task, index) => (
-                <TableRow key={index} task={task} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AntTable columns={columns} dataSource={tasks} rowKey="_id" pagination={false} />
 
       <ConfirmatioDialog
         open={openDialog}

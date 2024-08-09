@@ -1,8 +1,18 @@
-import clsx from "clsx";
 import React from "react";
+import { Badge } from "antd";
 
 const TaskColor = ({ className }) => {
-  return <div className={clsx("w-4 h-4 rounded-full", className)} />;
+  return (
+    <Badge
+      color={className}
+      style={{
+        width: 16,
+        height: 16,
+        borderRadius: "50%",
+        display: "inline-block",
+      }}
+    />
+  );
 };
 
 export default TaskColor;
