@@ -1,7 +1,3 @@
-Sure! Here's a template for a great `README.md` file for your GitHub project:
-
----
-
 # **Gamified Project Management**
 
 ## **Overview**
