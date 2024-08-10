@@ -20,8 +20,7 @@ const TaskCard = ({ task }) => {
   const { user } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
 
-  // Extract the priority style
-  const priorityStyle = PRIOTITYSTYELS[task?.priority] || "#e0faff"; // Fallback color if undefined
+  const priorityStyle = PRIOTITYSTYELS[task?.priority] || "default-color";
 
   return (
     <>
@@ -31,20 +30,20 @@ const TaskCard = ({ task }) => {
           backgroundColor: "#fff",
           borderRadius: 20,
           position: "relative",
-          border: `2px solid ${priorityStyle}`, // Dynamic border color based on task priority
+          border: `2px solid ${priorityStyle}`,
         }}
         bodyStyle={{ padding: "16px" }}
       >
-        <div className="w-full flex justify-between items-center">
-          <div className={clsx("flex flex-1 gap-1 items-center text-sm font-medium", priorityStyle)}>
+        {/* Task Dialog at the top right corner */}
+        <div className="flex justify-between items-center mb-2">
+          <div className={clsx("flex gap-1 items-center text-sm font-medium", priorityStyle)}>
             <span className="text-lg">{ICONS[task?.priority]}</span>
             <Text className="uppercase">{task?.priority} Priority</Text>
           </div>
           <TaskDialog task={task} className="task-dialog" />
         </div>
 
-        <Divider className="my-2" />
-
+        {/* Task Title and Color Indicator */}
         <div className="flex items-center gap-2">
           <TaskColor className={TASK_TYPE[task.stage]} />
           <Text className="text-base font-medium text-black dark:text-white">{task?.title}</Text>
@@ -54,6 +53,7 @@ const TaskCard = ({ task }) => {
 
         <Divider className="my-2" />
 
+        {/* Task Assets, Team, and Sub-Tasks */}
         <div className="flex items-center justify-between mb-2">
           <TaskAssets
             activities={task?.activities?.length}

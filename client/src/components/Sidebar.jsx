@@ -82,7 +82,9 @@ const Sidebar = () => {
   
           <MdOutlineAddTask className='text-white text-2xl font-black' />
 
-        <span className='text-2xl font-bold text-blue'>Gamified Project Manager</span>
+          <span className='text-2xl font-bold' style={{ fontFamily: 'Orbitron, sans-serif', color: 'black', }}>
+            Gamified Project Manager
+          </span>
       </h1>
 
       <div className='flex-1 flex flex-col gap-y-5 py-8'>
