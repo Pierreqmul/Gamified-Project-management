@@ -20,38 +20,37 @@ const TaskCard = ({ task }) => {
   const { user } = useSelector((state) => state.auth);
   const [open, setOpen] = useState(false);
 
+  // Extract the priority style
+  const priorityStyle = PRIOTITYSTYELS[task?.priority] || "#e0faff"; // Fallback color if undefined
+
   return (
     <>
       <Card
         className="w-full h-fit shadow-md"
-        style={{ backgroundColor: "#fff", borderRadius: 8 }}
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: 20,
+          position: "relative",
+          border: `2px solid ${priorityStyle}`, // Dynamic border color based on task priority
+        }}
         bodyStyle={{ padding: "16px" }}
       >
         <div className="w-full flex justify-between items-center">
-          <div
-            className={clsx(
-              "flex flex-1 gap-1 items-center text-sm font-medium",
-              PRIOTITYSTYELS[task?.priority]
-            )}
-          >
+          <div className={clsx("flex flex-1 gap-1 items-center text-sm font-medium", priorityStyle)}>
             <span className="text-lg">{ICONS[task?.priority]}</span>
             <Text className="uppercase">{task?.priority} Priority</Text>
           </div>
-          <TaskDialog task={task} />
+          <TaskDialog task={task} className="task-dialog" />
         </div>
 
         <Divider className="my-2" />
 
         <div className="flex items-center gap-2">
           <TaskColor className={TASK_TYPE[task.stage]} />
-          <Text className="text-base font-medium text-black dark:text-white">
-            {task?.title}
-          </Text>
+          <Text className="text-base font-medium text-black dark:text-white">{task?.title}</Text>
         </div>
 
-        <Text className="text-sm text-gray-600 dark:text-gray-400">
-          {formatDate(new Date(task?.date))}
-        </Text>
+        <Text className="text-sm text-gray-600 dark:text-gray-400">{formatDate(new Date(task?.date))}</Text>
 
         <Divider className="my-2" />
 
@@ -63,19 +62,18 @@ const TaskCard = ({ task }) => {
           />
 
           <div className="flex flex-row-reverse">
-            {task?.team?.length > 0 &&
-              task?.team?.map((m, index) => (
-                <Avatar
-                  key={index}
-                  style={{
-                    backgroundColor: BGS[index % BGS?.length],
-                    marginLeft: -8,
-                  }}
-                  className="flex items-center justify-center text-sm"
-                >
-                  <UserInfo user={m} />
-                </Avatar>
-              ))}
+            {task?.team?.map((m, index) => (
+              <Avatar
+                key={index}
+                style={{
+                  backgroundColor: BGS[index % BGS?.length],
+                  marginLeft: -8,
+                }}
+                className="flex items-center justify-center text-sm"
+              >
+                <UserInfo user={m} />
+              </Avatar>
+            ))}
           </div>
         </div>
 

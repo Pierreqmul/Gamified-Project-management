@@ -1,22 +1,17 @@
-import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { toast } from "sonner";
-import {
-  AddUser,
-  Button,
-  ConfirmatioDialog,
-  Loading,
-  Title,
-  UserAction,
-} from "../components";
+import { Table, Button as AntButton, Avatar, Space, Tag, Typography } from "antd";
+import { useSearchParams } from "react-router-dom";
 import {
   useDeleteUserMutation,
   useGetTeamListsQuery,
   useUserActionMutation,
 } from "../redux/slices/api/userApiSlice";
-import { getInitials } from "../utils/index";
-import { useSearchParams } from "react-router-dom";
+import { AddUser, ConfirmatioDialog, Loading, UserAction } from "../components";
+import { getInitials } from "../utils";
+
+const { Title } = Typography;
 
 const Users = () => {
   const [searchParams] = useSearchParams();
@@ -50,17 +45,16 @@ const Users = () => {
 
   const deleteHandler = async () => {
     try {
-      const res = await deleteUser(selected);
-
+      const res = await deleteUser(selected).unwrap();
       refetch();
-      toast.success(res?.data?.message);
+      toast.success(res?.message);
       setSelected(null);
       setTimeout(() => {
         setOpenDialog(false);
       }, 500);
     } catch (error) {
-      console.log(err);
-      toast.error(err?.data?.message || err.error);
+      console.error(error);
+      toast.error(error?.data?.message || error.message);
     }
   };
 
@@ -69,17 +63,16 @@ const Users = () => {
       const res = await userAction({
         isActive: !selected?.isActive,
         id: selected?._id,
-      });
-
+      }).unwrap();
       refetch();
-      toast.success(res?.data?.message);
+      toast.success(res?.message);
       setSelected(null);
       setTimeout(() => {
         setOpenAction(false);
       }, 500);
     } catch (error) {
-      console.log(err);
-      toast.error(err?.data?.message || err.error);
+      console.error(error);
+      toast.error(error?.data?.message || error.message);
     }
   };
 
@@ -87,90 +80,84 @@ const Users = () => {
     refetch();
   }, [open]);
 
-  const TableHeader = () => (
-    <thead className='border-b border-gray-300 dark:border-gray-600'>
-      <tr className='text-black dark:text-white  text-left'>
-        <th className='py-2'>Full Name</th>
-        <th className='py-2'>Title</th>
-        <th className='py-2'>Email</th>
-        <th className='py-2'>Role</th>
-        <th className='py-2'>Active</th>
-      </tr>
-    </thead>
-  );
-
-  const TableRow = ({ user }) => (
-    <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-400/10'>
-      <td className='p-2'>
-        <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-blue-700'>
-            <span className='text-xs md:text-sm text-center'>
-              {getInitials(user.name)}
-            </span>
-          </div>
-          {user.name}
-        </div>
-      </td>
-      <td className='p-2'>{user.title}</td>
-      <td className='p-2'>{user.email}</td>
-      <td className='p-2'>{user.role}</td>
-      <td>
-        <button
-          onClick={() => userStatusClick(user)}
-          className={clsx(
-            "w-fit px-4 py-1 rounded-full",
-            user?.isActive ? "bg-blue-200" : "bg-yellow-100"
-          )}
+  const columns = [
+    {
+      title: "Full Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Space>
+          <Avatar style={{ backgroundColor: "#1890ff", borderRadius: "50px" }}>
+            {getInitials(record.name)}
+          </Avatar>
+          {record.name}
+        </Space>
+      ),
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+    },
+    {
+      title: "Active",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive, record) => (
+        <Tag
+          color={isActive ? "blue" : "yellow"}
+          onClick={() => userStatusClick(record)}
+          style={{ cursor: "pointer" }}
         >
-          {user?.isActive ? "Active" : "Disabled"}
-        </button>
-      </td>
-      <td className='p-2 flex gap-4 justify-end'>
-        <Button
-          className='text-blue-600 hover:text-blue-500 font-semibold sm:px-0'
-          label='Edit'
-          type='button'
-          onClick={() => editClick(user)}
-        />
-
-        <Button
-          className='text-red-700 hover:text-red-500 font-semibold sm:px-0'
-          label='Delete'
-          type='button'
-          onClick={() => deleteClick(user?._id)}
-        />
-      </td>
-    </tr>
-  );
+          {isActive ? "Active" : "Disabled"}
+        </Tag>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space>
+          <AntButton type="link" onClick={() => editClick(record)}>
+            Edit
+          </AntButton>
+          <AntButton type="link" danger onClick={() => deleteClick(record._id)}>
+            Delete
+          </AntButton>
+        </Space>
+      ),
+    },
+  ];
 
   return isLoading ? (
-    <div className='py-10'>
+    <div className="py-10">
       <Loading />
     </div>
   ) : (
     <>
-      <div className='w-full md:px-1 px-0 mb-6'>
-        <div className='flex items-center justify-between mb-8'>
-          <Title title='  Team Members' />
-
-          <Button
-            label='Add New User'
-            icon={<IoMdAdd className='text-lg' />}
-            className='flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md 2xl:py-2.5'
+      <div className="w-full mb-6">
+        <div className="flex items-center justify-between mb-8">
+          <Title level={3}>Team Members</Title>
+          <AntButton
+            type="primary"
+            icon={<IoMdAdd />}
             onClick={() => setOpen(true)}
-          />
+          >
+            Add New User
+          </AntButton>
         </div>
-        <div className='bg-white dark:bg-[#1f1f1f] px-2 md:px-4 py-4 shadow-md rounded'>
-          <div className='overflow-x-auto'>
-            <table className='w-full mb-5'>
-              <TableHeader />
-              <tbody>
-                {data?.map((user, index) => (
-                  <TableRow key={index} user={user} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="bg-white dark:bg-[#1f1f1f] p-4 shadow-md rounded">
+          <Table columns={columns} dataSource={data} rowKey="_id" />
         </div>
       </div>
 

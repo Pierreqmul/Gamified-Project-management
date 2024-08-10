@@ -87,7 +87,7 @@ const App = () => {
 
   return (
     <main className={theme}>
-      <div className='w-full min-h-screen bg-[#f3f4f6] dark:bg-[#0d0d0df4]'>
+      <div className='w-full min-h-screen bg-[#f4fbff] dark:bg-[#0d0d0df4]'>
         <Routes>
           <Route element={<Layout />}>
             <Route index path='/' element={<Navigate to='/dashboard' />} />

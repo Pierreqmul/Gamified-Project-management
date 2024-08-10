@@ -12,14 +12,17 @@ import {
 import { useGetDashboardStatsQuery } from "../redux/slices/api/taskApiSlice.js";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import { useSelector } from "react-redux";
-import { Card, Col, Row, Table, Avatar, Tag } from "antd";
+import { Card, Col, Row, Table, Avatar, Tag, Grid } from "antd";
 import LeaderDashboard from "./LeaderDashboard.jsx";
 import PieChart from '../components/PieChart.jsx';
 import Chart from '../components/Chart.jsx';
 import Loading from '../components/Loading.jsx';
 import UserInfo from '../components/UserInfo.jsx';
 
+const { useBreakpoint } = Grid;
+
 const Dashboard = () => {
+  const screens = useBreakpoint();
   const { data, isLoading } = useGetDashboardStatsQuery();
   const { user } = useSelector((state) => state.auth);
   const [tasksData, setTasksData] = useState([]);
@@ -82,8 +85,11 @@ const Dashboard = () => {
     <div className='h-full py-3' style={{ backgroundColor: 'transparent' }}>
       <Row gutter={[16, 8]}>
         {stats.map(({ icon, bg, label, total }, index) => (
-          <Col span={4} key={index}>
-            <Card className='shadow-md' style={{ height: '110px', borderRadius: '20px', backgroundColor: bg }}>
+          <Col 
+            key={index}
+            xs={24} sm={12} md={8} lg={6} xl={4} // Responsive column spans
+          >
+            <Card className='shadow-md' style={{ height: '120px', borderRadius: '20px', backgroundColor: bg }}>
               <div className='h-full flex flex-col justify-center p-0'>
                 <div className='flex items-center justify-center'>
                   <span className='text-2xl font-semibold text-white'>{total}</span>
@@ -96,11 +102,13 @@ const Dashboard = () => {
             </Card>
           </Col>
         ))}
-        <Col span={8}>
+        <Col
+          xs={24} sm={12} md={8} lg={6} xl={8} // Responsive column spans
+        >
           <Card className='shadow-md' style={{
-            height: '100px',
+            height: '120px',
             borderRadius: '20px',
-            backgroundImage: 'url(/src/assets/points2.gif)',
+            backgroundImage: 'url(/src/assets/points5.gif)',
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}>
@@ -115,21 +123,24 @@ const Dashboard = () => {
       </Row>
 
       <Row gutter={[16, 8]} className='my-10'>
-        <Col span={10}>
+        <Col xs={24} md={12} lg={10} // Responsive column spans
+        >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
             <h4 className='text-xl text-gray-700 font-bold mb-2'>Leaderboard</h4>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+            <div style={{ maxHeight: screens.md ? '300px' : 'auto', overflowY: screens.md ? 'auto' : 'visible' }}>
               <LeaderDashboard />
             </div>
           </Card>
         </Col>
-        <Col span={7}>
+        <Col xs={24} md={12} lg={7} // Responsive column spans
+        >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
             <h4 className='text-xl text-gray-700 font-bold mb-8 w-auto'>Chart by Priority</h4>
             <Chart data={data?.graphData} />
           </Card>
         </Col>
-        <Col span={7}>
+        <Col xs={24} md={12} lg={7} // Responsive column spans
+        >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
             <h4 className='text-xl text-gray-700 font-bold mb-2'>Task Progress</h4>
             <PieChart data={tasksData} />
@@ -138,13 +149,15 @@ const Dashboard = () => {
       </Row>
 
       <Row gutter={[16, 8]} className='py-0'>
-        <Col span={12}>
+        <Col xs={24} md={12} // Responsive column spans
+        >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
             <h4 className='text-xl text-gray-700 font-bold mb-2'>Recent Tasks</h4>
             {data && <TaskTable tasks={data?.last10Task} />}
           </Card>
         </Col>
-        <Col span={12}>
+        <Col xs={24} md={12} // Responsive column spans
+        >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
             <h4 className='text-xl text-gray-700 font-bold mb-2'>Users</h4>
             {data && user?.isAdmin && <UserTable users={data?.users} />}

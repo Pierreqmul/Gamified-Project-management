@@ -52,22 +52,22 @@ const Tasks = () => {
 
   if (isLoading) {
     return (
-      <div className="py-10">
+      <div className='py-10'>
         <Loading />
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
+    <div className='w-full'>
+      <div className='flex items-center justify-between mb-4'>
         <Title title={status ? `${status} Tasks` : "Tasks"} />
 
         {!status && user?.isAdmin && (
           <Button
-            label="Create Task"
-            icon={<IoMdAdd className="text-lg" />}
-            className="flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5"
+            label='Create Task'
+            icon={<IoMdAdd className='text-lg' />}
+            className='flex flex-row-reverse gap-1 items-center bg-blue-600 text-white rounded-md py-2 2xl:py-2.5'
             onClick={() => setOpen(true)}
           />
         )}
@@ -76,21 +76,23 @@ const Tasks = () => {
       <div>
         <CustomTabs tabs={TABS} setSelected={setSelected}>
           {!status && (
-            <div className="w-full flex justify-between gap-4 md:gap-x-12 py-4">
-              <TaskTitle label="To Do" className={TASK_TYPE.todo} />
+            <div className='w-full flex justify-between gap-4 md:gap-x-12 py-4'>
+              <TaskTitle label='To Do' className={TASK_TYPE.todo} />
               <TaskTitle
-                label="In Progress"
+                label='In Progress'
                 className={TASK_TYPE["in progress"]}
               />
-              <TaskTitle label="Completed" className={TASK_TYPE.completed} />
+              <TaskTitle label='Completed' className={TASK_TYPE.completed} />
             </div>
           )}
 
-          {selected === 0 ? (
-            <BoardView tasks={data?.tasks} onStageChange={handleStageChange} />
-          ) : (
-            <Table tasks={data?.tasks} onStageChange={handleStageChange} />
-          )}
+          <div className="scrollable-container">
+            {selected === 0 ? (
+              <BoardView tasks={data?.tasks} onStageChange={handleStageChange} />
+            ) : (
+              <Table tasks={data?.tasks} onStageChange={handleStageChange} />
+            )}
+          </div>
         </CustomTabs>
       </div>
       <AddTask open={open} setOpen={setOpen} />

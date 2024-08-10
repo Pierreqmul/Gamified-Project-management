@@ -1,92 +1,36 @@
-import clsx from "clsx";
-import moment from "moment";
 import React, { useState } from "react";
-import { FaBug, FaTasks, FaThumbsUp, FaUser } from "react-icons/fa";
-import { GrInProgress } from "react-icons/gr";
-import {
-  MdKeyboardArrowDown,
-  MdKeyboardArrowUp,
-  MdKeyboardDoubleArrowUp,
-  MdOutlineDoneAll,
-  MdOutlineMessage,
-  MdTaskAlt,
-} from "react-icons/md";
-import { RxActivityLog } from "react-icons/rx";
 import { useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { Button, Loading, CustomTabs } from "../components";
-import { TaskColor } from "../components/tasks";
 import {
-  useGetSingleTaskQuery,
-  usePostTaskActivityMutation,
-} from "../redux/slices/api/taskApiSlice";
+  Avatar,
+  Card,
+  Col,
+  Row,
+  Tabs,
+  Tag,
+  Typography,
+  Button as AntButton,
+  Divider,
+  Tooltip,
+  List,  // Add this line
+} from "antd";
+import moment from "moment";
+import { FaTasks } from "react-icons/fa";
+import { RxActivityLog } from "react-icons/rx";
+import { MdTaskAlt, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp } from "react-icons/md"; // Added this line
+import { Loading } from "../components";
+import { TaskColor } from "../components/tasks";
+import { useGetSingleTaskQuery, usePostTaskActivityMutation } from "../redux/slices/api/taskApiSlice";
 import { PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
+import TaskAssets from "../components/tasks/TaskAssets"; 
 
-const assets = [
-  "https://images.pexels.com/photos/2418664/pexels-photo-2418664.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/8797307/pexels-photo-8797307.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/2534523/pexels-photo-2534523.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  "https://images.pexels.com/photos/804049/pexels-photo-804049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-];
+const { Text, Title } = Typography;
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
   medium: <MdKeyboardArrowUp />,
   low: <MdKeyboardArrowDown />,
 };
-
-const bgColor = {
-  high: "bg-red-200",
-  medium: "bg-yellow-200",
-  low: "bg-blue-200",
-};
-
-const TABS = [
-  { title: "Task Detail", icon: <FaTasks /> },
-  { title: "Activities/Timeline", icon: <RxActivityLog /> },
-];
-
-const TASKTYPEICON = {
-  commented: (
-    <div className='w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center text-white'>
-      <MdOutlineMessage />,
-    </div>
-  ),
-  started: (
-    <div className='w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white'>
-      <FaThumbsUp size={20} />
-    </div>
-  ),
-  assigned: (
-    <div className='w-6 h-6 flex items-center justify-center rounded-full bg-gray-500 text-white'>
-      <FaUser size={14} />
-    </div>
-  ),
-  bug: (
-    <div className='text-red-600'>
-      <FaBug size={24} />
-    </div>
-  ),
-  completed: (
-    <div className='w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white'>
-      <MdOutlineDoneAll size={24} />
-    </div>
-  ),
-  "in progress": (
-    <div className='w-8 h-8 flex items-center justify-center rounded-full bg-violet-600 text-white'>
-      <GrInProgress size={16} />
-    </div>
-  ),
-};
-
-const act_types = [
-  "Started",
-  "Completed",
-  "In Progress",
-  "Commented",
-  "Bug",
-  "Assigned",
-];
 
 const Activities = ({ activity, id, refetch }) => {
   const [selected, setSelected] = useState("Started");
@@ -113,81 +57,58 @@ const Activities = ({ activity, id, refetch }) => {
     }
   };
 
-  const Card = ({ item }) => {
-    return (
-      <div className={`flex space-x-4`}>
-        <div className='flex flex-col items-center flex-shrink-0'>
-          <div className='w-10 h-10 flex items-center justify-center'>
-            {TASKTYPEICON[item?.type]}
-          </div>
-          <div className='h-full flex items-center'>
-            <div className='w-0.5 bg-gray-300 h-full'></div>
-          </div>
-        </div>
-
-        <div className='flex flex-col gap-y-1 mb-8'>
-          <p className='font-semibold'>{item?.by?.name}</p>
-          <div className='text-gray-500 space-x-2'>
-            <span className='capitalize'>{item?.type}</span>
-            <span className='text-sm'>{moment(item?.date).fromNow()}</span>
-          </div>
-          <div className='text-gray-700'>{item?.activity}</div>
-        </div>
-      </div>
-    );
-  };
+  const ActivityCard = ({ item }) => (
+    <List.Item>
+      <List.Item.Meta
+        avatar={TASKTYPEICON[item?.type]}
+        title={<Text strong>{item?.by?.name}</Text>}
+        description={
+          <>
+            <Text type="secondary" style={{ marginRight: 8 }}>
+              {item?.type.charAt(0).toUpperCase() + item?.type.slice(1)}
+            </Text>
+            <Text type="secondary">{moment(item?.date).fromNow()}</Text>
+            <div>{item?.activity}</div>
+          </>
+        }
+      />
+    </List.Item>
+  );
 
   return (
-    <div className='w-full flex gap-10 2xl:gap-20 min-h-screen px-10 py-8 bg-white shadow rounded-md justify-between overflow-y-auto'>
-      <div className='w-full md:w-1/2'>
-        <h4 className='text-gray-600 font-semibold text-lg mb-5'>Activities</h4>
-        <div className='w-full space-y-0'>
-          {activity?.map((item, index) => (
-            <Card
-              key={item.id}
-              item={item}
-              isConnected={index < activity?.length - 1}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className='w-full md:w-1/3'>
-        <h4 className='text-gray-600 font-semibold text-lg mb-5'>
-          Add Activity
-        </h4>
-        <div className='w-full flex flex-wrap gap-5'>
-          {act_types.map((item, index) => (
-            <div key={item} className='flex gap-2 items-center'>
-              <input
-                type='checkbox'
-                className='w-4 h-4'
-                checked={selected === item ? true : false}
-                onChange={(e) => setSelected(item)}
-              />
-              <p>{item}</p>
-            </div>
-          ))}
-          <textarea
-            rows={10}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder='Type ......'
-            className='bg-white w-full mt-10 border border-gray-300 outline-none p-4 rounded-md focus:ring-2 ring-blue-500'
-          ></textarea>
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <Button
-              type='button'
-              label='Submit'
-              onClick={handleSubmit}
-              className='bg-blue-600 text-white rounded'
-            />
-          )}
-        </div>
-      </div>
-    </div>
+    <Row gutter={[16, 16]} className="min-h-screen">
+      <Col xs={24} md={16}>
+        <Title level={4}>Activities</Title>
+        <List
+          itemLayout="horizontal"
+          dataSource={activity}
+          renderItem={(item) => <ActivityCard item={item} />}
+        />
+      </Col>
+      <Col xs={24} md={8}>
+        <Title level={4}>Add Activity</Title>
+        <Checkbox.Group
+          options={["Started", "Completed", "In Progress", "Commented", "Bug", "Assigned"]}
+          value={[selected]}
+          onChange={(values) => setSelected(values[0])}
+        />
+        <Input.TextArea
+          rows={6}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Type ..."
+          style={{ marginTop: 16 }}
+        />
+        <AntButton
+          type="primary"
+          loading={isLoading}
+          onClick={handleSubmit}
+          style={{ marginTop: 16 }}
+        >
+          Submit
+        </AntButton>
+      </Col>
+    </Row>
   );
 };
 
@@ -199,130 +120,109 @@ const TaskDetail = () => {
   const task = data?.task;
 
   return isLoading ? (
-    <div className='py-10'>
+    <div className="py-10">
       <Loading />
     </div>
   ) : (
-    <div className='w-full flex flex-col gap-3 mb-4 overflow-y-hidden'>
-      {/* task detail */}
-      <h1 className='text-2xl text-gray-600 font-bold'>{task?.title}</h1>
-      <CustomTabs tabs={TABS} setSelected={setSelected}>
-        {selected === 0 ? (
-          <>
-            <div className='w-full flex flex-col md:flex-row gap-5 2xl:gap-8 bg-white shadow rounded-md px-8 py-8 overflow-y-auto'>
-              <div className='w-full md:w-1/2 space-y-8'>
-                <div className='flex items-center gap-5'>
-                  <div
-                    className={clsx(
-                      "flex gap-1 items-center text-base font-semibold px-3 py-1 rounded-full",
-                      PRIOTITYSTYELS[task?.priority],
-                      bgColor[task?.priority]
-                    )}
+    <div className="w-full flex flex-col gap-3 mb-4 overflow-y-hidden">
+      <Title level={2}>{task?.title}</Title>
+      <Tabs defaultActiveKey="1" onChange={(key) => setSelected(parseInt(key) - 1)}>
+        <Tabs.TabPane
+          tab={
+            <span>
+              <FaTasks /> Task Detail
+            </span>
+          }
+          key="1"
+        >
+          <Card className="bg-white shadow rounded-md px-8 py-8">
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="flex items-center gap-5">
+                  <Tag
+                    color={PRIOTITYSTYELS[task?.priority]}
+                    style={{ backgroundColor: PRIOTITYSTYELS[task?.priority], color: "#fff" }}
                   >
-                    <span className='text-lg'>{ICONS[task?.priority]}</span>
-                    <span className='uppercase'>{task?.priority} Priority</span>
-                  </div>
-
-                  <div className={clsx("flex items-center gap-2")}>
-                    <TaskColor className={TASK_TYPE[task?.stage]} />
-                    <span className='text-black uppercase'>{task?.stage}</span>
-                  </div>
+                    {ICONS[task?.priority]} {task?.priority} Priority
+                  </Tag>
+                  <Tag color={TASK_TYPE[task?.stage]} style={{ color: "#000", backgroundColor: "#c9cfff" }}>
+                    {task?.stage}
+                  </Tag>
                 </div>
-
-                <p className='text-gray-500'>
+                <Text type="secondary">
                   Created At: {new Date(task?.date).toDateString()}
-                </p>
-
-                <div className='flex items-center gap-8 p-4 border-y border-gray-200'>
-                  <div className='space-x-2'>
-                    <span className='font-semibold'>Assets :</span>
-                    <span>{task?.assets?.length}</span>
-                  </div>
-                  <span className='text-gray-400'>|</span>
-                  <div className='space-x-2'>
-                    <span className='font-semibold'>Sub-Task :</span>
-                    <span>{task?.subTasks?.length}</span>
-                  </div>
-                </div>
-
-                <div className='space-y-4 py-6'>
-                  <p className='text-gray-500 font-semibold text-sm'>
-                    TASK TEAM
-                  </p>
-                  <div className='space-y-3'>
-                    {task?.team?.map((m, index) => (
-                      <div
-                        key={index + m?._id}
-                        className='flex gap-4 py-2 items-center border-t border-gray-200'
-                      >
-                        <div
-                          className={
-                            "w-10 h-10 rounded-full text-white flex items-center justify-center text-sm -mr-1 bg-blue-600"
-                          }
-                        >
-                          <span className='text-center'>
-                            {getInitials(m?.name)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className='text-lg font-semibold'>{m?.name}</p>
-                          <span className='text-gray-500'>{m?.title}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className='space-y-4 py-6'>
-                  <p className='text-gray-500 font-semibold text-sm'>
-                    SUB-TASKS
-                  </p>
-                  <div className='space-y-8'>
-                    {task?.subTasks?.map((el, index) => (
-                      <div key={index + el?._id} className='flex gap-3'>
-                        <div className='w-10 h-10 flex items-center justify-center rounded-full bg-violet-200'>
-                          <MdTaskAlt className='text-violet-600' size={26} />
-                        </div>
-
-                        <div className='space-y-1'>
-                          <div className='flex gap-2 items-center'>
-                            <span className='text-sm text-gray-500'>
-                              {new Date(el?.date).toDateString()}
-                            </span>
-
-                            <span className='px-2 py-0.5 text-center text-sm rounded-full bg-violet-100 text-violet-700 font-semibold'>
-                              {el?.tag}
-                            </span>
-                          </div>
-                          <p className='text-gray-700'>{el?.title}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className='w-full md:w-1/2 space-y-3'>
-                <p className='text-lg font-semibold'>ASSETS</p>
-                <div className='w-full grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  {task?.assets?.map((el, index) => (
-                    <img
-                      key={index}
-                      src={el}
-                      alt={index}
-                      className='w-full rounded h-auto md:h-44 2xl:h-52 cursor-pointer transition-all duration-700 md:hover:scale-125 hover:z-50'
-                    />
+                </Text>
+                <Divider />
+                <Row gutter={[16, 16]}>
+                  <Col>
+                    <Text strong>Assets :</Text> {task?.assets?.length}
+                  </Col>
+                  <Col>
+                    <Text strong>Sub-Task :</Text> {task?.subTasks?.length}
+                  </Col>
+                </Row>
+                <Divider />
+                <Title level={5}>Task Team</Title>
+                <Row gutter={[16, 16]}>
+                  {task?.team?.map((m, index) => (
+                    <Col key={index} xs={24} sm={12} lg={8}>
+                      <Card bordered={false}>
+                        <List.Item>
+                          <List.Item.Meta
+                            avatar={
+                              <Avatar style={{ backgroundColor: "#1890FF" }}>
+                                {getInitials(m?.name)}
+                              </Avatar>
+                            }
+                            title={m?.name}
+                            description={m?.title}
+                          />
+                        </List.Item>
+                      </Card>
+                    </Col>
                   ))}
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <Activities activity={task?.activities} refetch={refetch} id={id} />
-          </>
-        )}
-      </CustomTabs>
+                </Row>
+              </Col>
+
+              <Col xs={24} md={12}>
+                <Title level={5}>Sub-Tasks</Title>
+                {task?.subTasks?.map((el, index) => (
+                  <Card key={index} bordered={false} className="flex gap-3 mb-4">
+                    <Avatar
+                      style={{ backgroundColor: "#E6E6FA" }}
+                      icon={<MdTaskAlt style={{ color: "#6A0DAD" }} />}
+                    />
+                    <div>
+                      <Text type="secondary">{new Date(el?.date).toDateString()}</Text>
+                      <Tag color="purple">{el?.tag}</Tag>
+                      <p>{el?.title}</p>
+                    </div>
+                  </Card>
+                ))}
+
+                <Title level={5}>Attachments</Title>
+                <TaskAssets
+                  activities={task?.activities?.length || 0}
+                  assets={task?.assets?.length || 0}
+                  subTasks={task?.subTasks?.length || 0}
+                  assetUrls={task?.assets || []}
+                />
+              </Col>
+            </Row>
+          </Card>
+        </Tabs.TabPane>
+
+        <Tabs.TabPane
+          tab={
+            <span>
+              <RxActivityLog /> Activities/Timeline
+            </span>
+          }
+          key="2"
+        >
+          <Activities activity={task?.activities} refetch={refetch} id={id} />
+        </Tabs.TabPane>
+      </Tabs>
     </div>
   );
 };

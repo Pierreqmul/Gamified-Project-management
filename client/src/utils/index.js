@@ -49,9 +49,9 @@ export const updateURL = ({ searchTerm, navigate, location }) => {
 };
 
 export const PRIOTITYSTYELS = {
-  high: "text-red-600",
-  medium: "text-yellow-600",
-  low: "text-blue-600",
+  high: "#f5222d", // red for high priority
+  medium: "#faad14", // orange for medium priority
+  low: "#52c41a", // green for low priority
 };
 
 export const TASK_TYPE = {
@@ -60,9 +60,11 @@ export const TASK_TYPE = {
   completed: "bg-green-600",
 };
 
+
 export const BGS = [
   "bg-blue-600",
   "bg-yellow-600",
   "bg-red-600",
   "bg-green-600",
 ];
+
