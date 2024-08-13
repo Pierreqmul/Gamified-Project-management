@@ -103,7 +103,7 @@ const Dashboard = () => {
           </Col>
         ))}
         <Col
-          xs={24} sm={12} md={8} lg={6} xl={8} // Responsive column spans
+          xs={24} sm={12} md={8} lg={6} xl={8} 
         >
           <Card className='shadow-md' style={{
             height: '120px',
