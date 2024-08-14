@@ -12,7 +12,8 @@ import {
   getLeaderboard,
   registerUser,
   updateUserProfile,
-  completeTask // New import for completing task
+  completeTask,
+  getStreak, // Import the getStreak controller function
 } from "../controllers/userController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -25,6 +26,9 @@ router.post("/logout", logoutUser);
 router.get("/get-team", protectRoute, isAdminRoute, getTeamList);
 router.get("/notifications", protectRoute, getNotificationsList);
 router.get('/:id', getUserById);
+
+// New route for getting the user's streak count
+router.get('/streak', protectRoute, getStreak);
 
 router.put("/profile", protectRoute, updateUserProfile);
 router.put("/read-noti", protectRoute, markNotificationRead);

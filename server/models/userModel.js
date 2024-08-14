@@ -11,7 +11,9 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     tasks: [{ type: Schema.Types.ObjectId, ref: "Task" }],
     isActive: { type: Boolean, default: true },
-    points: { type: Number, default: 0 },  // Field for points
+    points: { type: Number, default: 0 },
+    streakCount: { type: Number, default: 0 },
+    lastLoginDate: { type: Date, default: null },
   },
   { timestamps: true }
 );

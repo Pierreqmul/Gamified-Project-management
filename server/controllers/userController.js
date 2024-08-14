@@ -4,6 +4,26 @@ import createJWT from "../utils/index.js";
 import Notice from "../models/notis.js";
 import Task from "../models/taskModel.js"; // New import for Task model
 
+// Function to update the user's daily streak
+const updateStreak = async (user) => {
+  const today = new Date().setHours(0, 0, 0, 0);
+  const lastLogin = new Date(user.lastLoginDate).setHours(0, 0, 0, 0);
+
+  if (user.lastLoginDate) {
+    const diffDays = (today - lastLogin) / (1000 * 60 * 60 * 24);
+    if (diffDays === 1) {
+      user.streakCount += 1;
+      // Trigger toast for increasing streak if using frontend framework
+    } else if (diffDays > 1) {
+      user.streakCount = 1;
+    }
+  } else {
+    user.streakCount = 1;
+  }
+  user.lastLoginDate = new Date();
+  await user.save();
+};
+
 // POST request - login user
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -27,6 +47,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && isMatch) {
     createJWT(res, user._id);
+    
+    await updateStreak(user); // Update streak after successful login
 
     user.password = undefined;
 
@@ -37,6 +59,12 @@ const loginUser = asyncHandler(async (req, res) => {
       .json({ status: false, message: "Invalid email or password" });
   }
 });
+
+const getStreak = async (req, res) => {
+  const user = await User.findById(req.user._id);
+  res.json({ streakCount: user.streakCount });
+};
+
 // POST - Register a new user
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, isAdmin, role, title } = req.body;
@@ -72,7 +100,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// POST -  Logout user / clear cookie
+// POST - Logout user / clear cookie
 const logoutUser = (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
@@ -80,6 +108,8 @@ const logoutUser = (req, res) => {
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
+
+// GET - Get user by ID
 const getUserById = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('name email points');
@@ -88,6 +118,8 @@ const getUserById = asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   }
 });
+
+// GET - Get team list
 const getTeamList = asyncHandler(async (req, res) => {
   const { search } = req.query;
   let query = {};
@@ -108,8 +140,7 @@ const getTeamList = asyncHandler(async (req, res) => {
 
   res.status(201).json(user);
 });
-
-// @GET  - get user notifications
+// GET - Get user notifications
 const getNotificationsList = asyncHandler(async (req, res) => {
   const { userId } = req.user;
 
@@ -122,7 +153,8 @@ const getNotificationsList = asyncHandler(async (req, res) => {
 
   res.status(201).json(notice);
 });
-// @GET  - get user notifications
+
+// GET - Mark notification as read
 const markNotificationRead = asyncHandler(async (req, res) => {
   try {
     const { userId } = req.user;
@@ -179,7 +211,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(404).json({ status: false, message: "User not found" });
   }
 });
-// PUT - activate/deactivate user profile
+
+// PUT - Activate/deactivate user profile
 const activateUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -203,6 +236,7 @@ const activateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// PUT - Change user password
 const changeUserPassword = asyncHandler(async (req, res) => {
   const { userId } = req.user;
 
@@ -224,6 +258,7 @@ const changeUserPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// GET - Get leaderboard
 const getLeaderboard = asyncHandler(async (req, res) => {
   const leaderboard = await User.find({})
     .sort({ points: -1 })
@@ -232,8 +267,7 @@ const getLeaderboard = asyncHandler(async (req, res) => {
   res.json(leaderboard);
 });
 
-
-// DELETE - delete user account
+// DELETE - Delete user account
 const deleteUserProfile = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -241,6 +275,7 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
 
   res.status(200).json({ status: true, message: "User deleted successfully" });
 });
+
 // New controller function for completing a task
 const completeTask = asyncHandler(async (req, res) => {
   try {
@@ -277,6 +312,7 @@ export {
   getTeamList,
   getUserById,
   loginUser,
+  getStreak,
   logoutUser,
   getLeaderboard,
   registerUser,
@@ -285,3 +321,4 @@ export {
   markNotificationRead,
   completeTask // Include the new export
 };
+

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { MdOutlineSearch } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setOpenSidebar } from "../redux/slices/authSlice";
 import NotificationPanel from "./NotificationPanel";
 import UserAvatar from "./UserAvatar";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { updateURL } from "../utils";
 import { Input, Layout, Button } from "antd";
+import axios from "axios"; // Import axios for API requests
 
 const { Header } = Layout;
 
@@ -18,10 +19,24 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
+  const [streak, setStreak] = useState(0); // State to store streak count
 
   useEffect(() => {
     updateURL({ searchTerm, navigate, location });
   }, [searchTerm]);
+
+  useEffect(() => {
+    // Fetch the streak count from the backend
+    const fetchStreak = async () => {
+      try {
+        const response = await axios.get("/api/user/streak");
+        setStreak(response.data.streakCount);
+      } catch (error) {
+        console.error("Failed to fetch streak:", error);
+      }
+    };
+    fetchStreak();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -57,6 +72,11 @@ const Navbar = () => {
       </div>
 
       <div className='flex gap-2 items-center'>
+        <div className='mr-4 text-gray-800 dark:text-gray-800 flex items-center'>
+          <span className='mr-1'>Streak: </span>
+          <span className='text-lg font-bold'>{streak}</span>
+          <span className='ml-1'>🔥</span>
+        </div>
         <NotificationPanel />
         <UserAvatar />
       </div>
