@@ -12,17 +12,22 @@ import {
   Button as AntButton,
   Divider,
   Tooltip,
-  List,  // Add this line
+  Checkbox,
+  Input,
+  List,
 } from "antd";
 import moment from "moment";
 import { FaTasks } from "react-icons/fa";
 import { RxActivityLog } from "react-icons/rx";
-import { MdTaskAlt, MdKeyboardArrowDown, MdKeyboardArrowUp, MdKeyboardDoubleArrowUp } from "react-icons/md"; // Added this line
+import {
+  MdTaskAlt,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
+  MdKeyboardDoubleArrowUp,
+} from "react-icons/md";
 import { Loading } from "../components";
-import { TaskColor } from "../components/tasks";
 import { useGetSingleTaskQuery, usePostTaskActivityMutation } from "../redux/slices/api/taskApiSlice";
 import { PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
-import TaskAssets from "../components/tasks/TaskAssets"; 
 
 const { Text, Title } = Typography;
 
@@ -60,7 +65,7 @@ const Activities = ({ activity, id, refetch }) => {
   const ActivityCard = ({ item }) => (
     <List.Item>
       <List.Item.Meta
-        avatar={TASKTYPEICON[item?.type]}
+        avatar={ICONS[item?.type]}
         title={<Text strong>{item?.by?.name}</Text>}
         description={
           <>
@@ -88,10 +93,16 @@ const Activities = ({ activity, id, refetch }) => {
       <Col xs={24} md={8}>
         <Title level={4}>Add Activity</Title>
         <Checkbox.Group
-          options={["Started", "Completed", "In Progress", "Commented", "Bug", "Assigned"]}
           value={[selected]}
           onChange={(values) => setSelected(values[0])}
-        />
+        >
+          <Checkbox value="Started">Started</Checkbox>
+          <Checkbox value="Completed">Completed</Checkbox>
+          <Checkbox value="In Progress">In Progress</Checkbox>
+          <Checkbox value="Commented">Commented</Checkbox>
+          <Checkbox value="Bug">Bug</Checkbox>
+          <Checkbox value="Assigned">Assigned</Checkbox>
+        </Checkbox.Group>
         <Input.TextArea
           rows={6}
           value={text}
@@ -201,12 +212,13 @@ const TaskDetail = () => {
                 ))}
 
                 <Title level={5}>Attachments</Title>
-                <TaskAssets
-                  activities={task?.activities?.length || 0}
-                  assets={task?.assets?.length || 0}
-                  subTasks={task?.subTasks?.length || 0}
-                  assetUrls={task?.assets || []}
-                />
+                <div className="flex flex-wrap gap-2">
+                  {task?.assets?.map((asset, index) => (
+                    <a key={index} href={asset} target="_blank" rel="noopener noreferrer">
+                      <img src={asset} alt={`Asset ${index + 1}`} className="h-24 w-24 object-cover rounded-md" />
+                    </a>
+                  ))}
+                </div>
               </Col>
             </Row>
           </Card>

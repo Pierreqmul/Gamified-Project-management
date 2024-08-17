@@ -7,7 +7,9 @@ import UserAvatar from "./UserAvatar";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { updateURL } from "../utils";
 import { Input, Layout, Button } from "antd";
-import axios from "axios"; // Import axios for API requests
+import streakGif from "../assets/streak.png";
+
+import axios from "axios";
 
 const { Header } = Layout;
 
@@ -19,7 +21,7 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
-  const [streak, setStreak] = useState(0); // State to store streak count
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     updateURL({ searchTerm, navigate, location });
@@ -29,7 +31,7 @@ const Navbar = () => {
     // Fetch the streak count from the backend
     const fetchStreak = async () => {
       try {
-        const response = await axios.get("/api/user/streak");
+        const response = await axios.get("/api/streak");
         setStreak(response.data.streakCount);
       } catch (error) {
         console.error("Failed to fetch streak:", error);
@@ -44,8 +46,8 @@ const Navbar = () => {
   };
 
   return (
-    <Header className='flex justify-between items-center bg-white dark:bg-[#1f1f1f] px-4 py-3 2xl:py-4 sticky z-10 top-0'>
-      <div className='flex gap-4'>
+    <Header className='flex justify-between items-center bg-white dark:bg-[#1f1f1f] px-6 py-3 2xl:py-4 sticky z-10 top-0'>
+      <div className='flex gap-6'>
         <div>
           <Button
             onClick={() => dispatch(setOpenSidebar(true))}
@@ -71,13 +73,14 @@ const Navbar = () => {
         )}
       </div>
 
-      <div className='flex gap-2 items-center'>
-        <div className='mr-4 text-gray-800 dark:text-gray-800 flex items-center'>
-          <span className='mr-1'>Streak: </span>
-          <span className='text-lg font-bold'>{streak}</span>
-          <span className='ml-1'>🔥</span>
+      <div className='flex gap-6 items-center'>
+        <div className='flex items-center bg-[#ffe4e1] dark:bg-[#2f2f2f] rounded-full p-2'>
+          <img src={streakGif} alt="Streak" className='w-6 h-6 mr-2' />
+          <span className='text-lg font-bold'>{streak} 5 days</span>
         </div>
-        <NotificationPanel />
+        <div className='relative z-20'> {/* Ensuring visibility with z-index */}
+          <NotificationPanel />
+        </div>
         <UserAvatar />
       </div>
     </Header>

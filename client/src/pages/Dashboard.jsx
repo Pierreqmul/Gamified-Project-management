@@ -135,7 +135,7 @@ const Dashboard = () => {
         <Col xs={24} md={12} lg={7} // Responsive column spans
         >
           <Card className='shadow-sm' style={{ height: '100%', borderRadius: '12px' }}>
-            <h4 className='text-xl text-gray-700 font-bold mb-8 w-auto'>Chart by Priority</h4>
+            <h4 className='text-xl text-gray-700 font-bold mb-8 w-auto'>Task Priority</h4>
             <Chart data={data?.graphData} />
           </Card>
         </Col>
