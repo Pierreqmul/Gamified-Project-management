@@ -49,9 +49,10 @@ export const updateURL = ({ searchTerm, navigate, location }) => {
 };
 
 export const PRIOTITYSTYELS = {
-  high: "#f5222d", // red for high priority
-  medium: "#faad14", // orange for medium priority
-  low: "#52c41a", // green for low priority
+  high: "#ff0040", // red for high priority
+  medium: "#ffc400", // orange for medium priority
+  low: "#00ffb3", // green for low priority
+  normal: "#e6fbff", // green for normal priority
 };
 
 export const TASK_TYPE = {

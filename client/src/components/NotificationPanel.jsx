@@ -1,4 +1,4 @@
-import { Popover, List, Button, Badge } from "antd";
+import { Popover, List, Button, Badge, Card, Typography } from "antd";
 import moment from "moment";
 import { useState } from "react";
 import { BiSolidMessageRounded } from "react-icons/bi";
@@ -10,9 +10,17 @@ import {
 } from "../redux/slices/api/userApiSlice";
 import ViewNotification from "./ViewNotification";
 
+const { Text } = Typography;
+
 const ICONS = {
-  alert: <HiBellAlert className='text-gray-600' />,
-  message: <BiSolidMessageRounded className='text-gray-600' />,
+  alert: <HiBellAlert className='text-xl' />,
+  message: <BiSolidMessageRounded className='text-xl' />,
+};
+
+// Define background colors for different notification types
+const BACKGROUNDS = {
+  alert: "#FFEFD5", // light peach
+  message: "#E6E6FA", // light lavender
 };
 
 export default function NotificationPanel() {
@@ -34,18 +42,29 @@ export default function NotificationPanel() {
   };
 
   const content = (
-    <div style={{ maxWidth: 300 }}>
+    <div style={{ maxWidth: 350, maxHeight: 400, overflowY: 'auto' }}>
       <List
         itemLayout="horizontal"
-        dataSource={data?.slice(0, 5)}
+        dataSource={data}
         renderItem={(item) => (
-          <List.Item onClick={() => viewHandler(item)} className="cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1c1c1c]">
+          <Card
+            onClick={() => viewHandler(item)}
+            className="mb-2 cursor-pointer"
+            style={{
+              backgroundColor: BACKGROUNDS[item.notiType] || "#FFF", 
+              borderRadius: 10,
+              border: `1px solid ${item.notiType === 'alert' ? '#FF6347' : '#6A5ACD'}` 
+            }}
+          >
             <List.Item.Meta
               avatar={<div>{ICONS[item.notiType]}</div>}
-              title={<span className='text-gray-900 dark:text-gray-200 capitalize'>{item.notiType}</span>}
-              description={<span className='text-gray-600 dark:text-gray-500'>{moment(item.createdAt).fromNow()}</span>}
+              title={<Text strong style={{ color: item.notiType === 'alert' ? '#FF4500' : '#483D8B' }}>{item.notiType.charAt(0).toUpperCase() + item.notiType.slice(1)}</Text>}
+              description={<Text style={{ color: '#555' }}>{item.text}</Text>}
             />
-          </List.Item>
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              {moment(item.createdAt).fromNow()}
+            </Text>
+          </Card>
         )}
       />
       <div className="flex justify-between mt-2">
