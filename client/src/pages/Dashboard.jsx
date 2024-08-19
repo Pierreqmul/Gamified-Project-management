@@ -87,7 +87,7 @@ const Dashboard = () => {
         {stats.map(({ icon, bg, label, total }, index) => (
           <Col 
             key={index}
-            xs={24} sm={12} md={8} lg={6} xl={4} // Responsive column spans
+            xs={24} sm={12} md={8} lg={6} xl={4} 
           >
             <Card className='shadow-md' style={{ height: '120px', borderRadius: '20px', backgroundColor: bg }}>
               <div className='h-full flex flex-col justify-center p-0'>

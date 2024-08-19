@@ -52,7 +52,7 @@ export const PRIOTITYSTYELS = {
   high: "#ff0040", // red for high priority
   medium: "#ffc400", // orange for medium priority
   low: "#00ffb3", // green for low priority
-  normal: "#e6fbff", // green for normal priority
+  normal: "#e6fbff", // light blue for normal priority
 };
 
 export const TASK_TYPE = {

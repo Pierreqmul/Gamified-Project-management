@@ -13,7 +13,7 @@ import {
   registerUser,
   updateUserProfile,
   completeTask,
-  getStreak, // Import the getStreak controller function
+  getStreak, 
 } from "../controllers/userController.js";
 import { isAdminRoute, protectRoute } from "../middleware/authMiddleware.js";
 
@@ -27,17 +27,16 @@ router.get("/get-team", protectRoute, isAdminRoute, getTeamList);
 router.get("/notifications", protectRoute, getNotificationsList);
 router.get('/:id', getUserById);
 
-// New route for getting the user's streak count
 router.get('/streak', protectRoute, getStreak);
 
 router.put("/profile", protectRoute, updateUserProfile);
 router.put("/read-noti", protectRoute, markNotificationRead);
 router.put("/change-password", protectRoute, changeUserPassword);
 
-// New route for completing a task and adding points to the user
+
 router.put('/tasks/:taskId/complete', protectRoute, completeTask);
 
-// FOR ADMIN ONLY - ADMIN ROUTES
+// ADMIN ROUTES
 router
   .route("/:id")
   .put(protectRoute, isAdminRoute, activateUserProfile)

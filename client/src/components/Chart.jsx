@@ -13,14 +13,13 @@ const Chart = ({ data }) => {
     colorField: 'name',
     color: ['#1d4ed8', '#0f766e', '#f59e0b', '#be185d'],
     label: {
-      position: 'middle', // Changed to a valid position
+      position: 'middle',
       style: {
         fill: '#FFFFFF',
         opacity: 0.6,
       },
     },
-    height: 270, // Adjust height as needed
-    //width: '100%', // Adjust width as needed
+    height: 270,
   };
 
   return <Bar {...config} />;

@@ -26,7 +26,7 @@ const KanbanBoard = ({ tasks }) => {
                   <div 
                     key={task._id || task.id} 
                     className="task-card" 
-                    style={{ marginBottom: '16px' }}  // Add margin-bottom to create spacing
+                    style={{ marginBottom: '16px' }} 
                   >
                     <TaskCard task={task} />
                   </div>

@@ -31,8 +31,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// Define Routes
-app.use("/api/user", userRoutes); // Ensure this matches the base path in the client
+
+app.use("/api/user", userRoutes); 
 app.use("/api/task", taskRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/status", statusRoutes);

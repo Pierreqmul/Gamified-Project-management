@@ -1,8 +1,8 @@
 import express from 'express';
 import userRoutes from './userRoute.js';
 import taskRoutes from './taskRoute.js';
-import leaderboardRoutes from './leaderboardRoute.js'; // Import leaderboard routes
-import statusRoutes from './StatusRoutes.js'; // Import status routes
+import leaderboardRoutes from './leaderboardRoute.js';
+import statusRoutes from './StatusRoutes.js';
 
 const router = express.Router();
 

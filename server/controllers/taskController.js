@@ -417,7 +417,7 @@ const completeTask = asyncHandler(async (req, res) => {
     const task = await Task.findById(req.params.id);
     if (task) {
       if (task.stage !== "completed") {
-        task.stage = "completed"; // Ensure the status is correctly updated to 'completed'
+        task.stage = "completed"; 
         await task.save();
 
         await User.updateMany(
@@ -478,5 +478,5 @@ export {
   updateTask,
   updateTaskStage,
   getTasksByStatus,
-  completeTask // Ensure completeTask is exported
+  completeTask 
 };

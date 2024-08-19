@@ -17,10 +17,9 @@ const ICONS = {
   message: <BiSolidMessageRounded className='text-xl' />,
 };
 
-// Define background colors for different notification types
 const BACKGROUNDS = {
-  alert: "#FFEFD5", // light peach
-  message: "#E6E6FA", // light lavender
+  alert: "#FFEFD5", 
+  message: "#E6E6FA", 
 };
 
 export default function NotificationPanel() {

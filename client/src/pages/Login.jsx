@@ -6,7 +6,7 @@ import { Button, Loading, Textbox } from "../components";
 import { useLoginMutation } from "../redux/slices/api/authApiSlice";
 import { setCredentials } from "../redux/slices/authSlice";
 import { useEffect } from "react";
-import illustration from '../assets/illustration.png'; // Ensure the correct path to your image file
+import illustration from '../assets/illustration.png'; 
 
 const Login = () => {
   const { user } = useSelector((state) => state.auth);

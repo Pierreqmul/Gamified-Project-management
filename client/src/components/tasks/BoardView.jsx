@@ -3,9 +3,8 @@ import TaskCard from "./TaskCard";
 import { Row, Col } from "antd";
 
 const BoardView = ({ tasks }) => {
-  // Check if tasks is an array and has elements
   if (!Array.isArray(tasks) || tasks.length === 0) {
-    return <div>No tasks available</div>; // Handle case where there are no tasks
+    return <div>No tasks available</div>; 
   }
 
   return (

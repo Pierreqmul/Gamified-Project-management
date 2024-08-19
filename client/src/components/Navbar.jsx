@@ -76,7 +76,7 @@ const Navbar = () => {
       <div className='flex gap-6 items-center'>
         <div className='flex items-center bg-[#ffe4e1] dark:bg-[#2f2f2f] rounded-full p-2'>
           <img src={streakGif} alt="Streak" className='w-6 h-6 mr-2' />
-          <span className='text-lg font-bold'>{streak} 5 days</span>
+          <span className='text-lg font-bold'>{streak} days</span>
         </div>
         <div className='relative z-20'> {/* Ensuring visibility with z-index */}
           <NotificationPanel />

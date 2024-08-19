@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import createJWT from "../utils/index.js";
 import Notice from "../models/notis.js";
-import Task from "../models/taskModel.js"; // New import for Task model
+import Task from "../models/taskModel.js"; 
 
 // Function to update the user's daily streak
 const updateStreak = async (user) => {
@@ -84,7 +84,7 @@ const registerUser = asyncHandler(async (req, res) => {
     isAdmin,
     role,
     title,
-    points: 0 // Initialize points field
+    points: 0 
   });
 
   if (user) {
@@ -276,7 +276,7 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ status: true, message: "User deleted successfully" });
 });
 
-// New controller function for completing a task
+// controller function for completing a task
 const completeTask = asyncHandler(async (req, res) => {
   try {
     const { taskId } = req.params;
