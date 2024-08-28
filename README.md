@@ -11,8 +11,6 @@ Welcome to the **Gamified Project Management System**. This project is designed 
 - **Points Accumulation**: Earn points for completing tasks before deadlines.
 - **Daily Streaks**: Maintain consistency by checking in daily to build streaks.
 - **Leaderboards**: Compete with team members by ranking based on points earned.
-- **Rewards and Achievements**: Unlock rewards and badges for achieving milestones.
-
 ### 🛠 Project Management Tools
 - **Task Management**: Create, assign, and prioritize tasks with ease.
 - **Project Tracking**: Visualize project progress with real-time updates.
