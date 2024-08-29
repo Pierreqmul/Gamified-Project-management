@@ -41,7 +41,6 @@ Welcome to the **Gamified Project Management System**. This project is designed 
 - **Socket.io**: Real-time bidirectional event-based communication between web clients and servers.
 
 ### 🧪 Testing and Performance
-- **Mocha & Chai**: JavaScript test frameworks for ensuring robust application logic.
 - **Postman**: API testing to ensure seamless backend integration.
 - **Manual Unit Testing**: Comprehensive testing of individual units of the application for reliability and stability.
 
